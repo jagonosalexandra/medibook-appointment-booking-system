@@ -3,6 +3,7 @@ import cors from "cors";
 import "dotenv/config";
 import connectDB from "./config/mongodb.js";
 import connectCloudinary from "./config/cloudinary.js";
+import doctorRouter from "./routes/doctorRoute.js";
 
 
 // app config
@@ -14,6 +15,9 @@ connectCloudinary()
 // middlewares
 app.use(express.json())
 app.use(cors())
+
+// api endpoint
+app.use('/api/doctors', doctorRouter)
 
 app.get('/', (req, res) => {
     res.send('API WORKING')
