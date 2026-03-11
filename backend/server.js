@@ -17,7 +17,7 @@ app.use(express.json())
 app.use(cors())
 
 // api endpoint
-app.use('/api/doctors', doctorRouter)
+app.use('/api/', doctorRouter)
 
 app.get('/', (req, res) => {
     res.send('API WORKING')
