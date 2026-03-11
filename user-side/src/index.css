@@ -16,7 +16,7 @@
   --color-warning: #D97706;
 
   /* font size */
-  --text-xl: 2rem;
+  --text-xl: 2.5rem;
   --text-lg: 1.5rem;
   --text-md: 1.125rem;
   --text-base: 1rem;
@@ -26,8 +26,14 @@
 @theme {
   --color-primary: var(--color-primary);
   --color-primary-dark: var(--color-primary-dark);
-   --color-text-primary: var( --color-text-primary);
+  --color-secondary: var(--color-secondary);
+  --color-background: var(--color-background);
+  --color-text-primary: var( --color-text-primary);
   --color-text-secondary: var(--color-text-secondary);
+  --color-card: var(--color-card);
+
+  --text-lg: var(--text-lg);
+  --text-sm: var(--text-sm);
 }
 
 body {
