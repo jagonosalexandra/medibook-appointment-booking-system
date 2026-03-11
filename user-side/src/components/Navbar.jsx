@@ -7,7 +7,7 @@ const Navbar = () => {
   const navigate = useNavigate()
 
   return (
-    <div className='flex items-center justify-between text-sm px-8 sticky top-0 bg-white border-b border-gray-300'>
+    <div className='flex items-center justify-between text-sm px-8 sticky top-0 z-50 bg-white border-b border-gray-300'>
       <img onClick={() => navigate('/')} className='w-34 cursor-pointer transition-all' src={logo} alt='' />
 
       <ul className='flex items-center gap-8'>
