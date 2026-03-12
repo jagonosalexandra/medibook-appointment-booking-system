@@ -8,6 +8,8 @@ import DoctorProfile from './pages/DoctorProfile'
 import Services from './pages/Services'
 import About from './pages/About'
 import Contact from './pages/Contact'
+import Booking from './pages/Booking'
+import Confirmation from './pages/Confirmation'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -21,8 +23,11 @@ function App() {
         <Route path='/doctors' element={<Doctors />} />
         <Route path='/doctors/:id' element={<DoctorProfile />} />
         <Route path='/services' element={<Services />} />
+        <Route path='/booking' element={<Booking />} />
+        <Route path='/confirmation' element={<Confirmation />} />
         <Route path='/about' element={<About />} />
         <Route path='/contact' element={<Contact />} />
+        <Route path='/404' element={<NodeIterator />} />
       </Routes>
 
       <Footer />

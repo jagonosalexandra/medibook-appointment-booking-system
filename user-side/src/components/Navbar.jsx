@@ -1,6 +1,7 @@
 import React from 'react'
 import logo from '../assets/images/logo.svg'
 import { NavLink, useNavigate } from 'react-router-dom'
+import Button from './Button'
 
 const Navbar = () => {
 
@@ -33,7 +34,11 @@ const Navbar = () => {
         </NavLink>
       </ul>
 
-      <button className='px-6 py-2 bg-primary hover:bg-primary-dark rounded-xl font-semibold text-white transition-all duration-300'>Book Now</button>
+      <Button
+        label="Book Now"
+        variant="primary"
+        onClick={() => navigate('booking')}
+      />
     </div>
   )
 }
