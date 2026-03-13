@@ -20,7 +20,7 @@ const StepIndicator = ({ steps, currentStep }) => {
                                         : 'border-gray-300 text-gray-400 bg-white'
                                     }`}
                             >
-                                {isCompleted ? <img className='w-6 fill-secondary' src={check} alt='' /> : stepNum}
+                                {stepNum}
                             </div>
 
                             <span className={`absolute -bottom-7 text-xs whitespace-nowrap font-medium ${isActive ? 'text-primary text-md font-semibold' : 'text-gray-400'
