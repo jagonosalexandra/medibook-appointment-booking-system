@@ -4,7 +4,7 @@ import "dotenv/config";
 import connectDB from "./config/mongodb.js";
 import connectCloudinary from "./config/cloudinary.js";
 import doctorRouter from "./routes/doctorRoute.js";
-
+import timeslotRouter from "./routes/timeslotRoute.js";
 
 // app config
 const app = express()
@@ -18,6 +18,7 @@ app.use(cors())
 
 // api endpoint
 app.use('/api/', doctorRouter)
+app.use('/api/', timeslotRouter)
 
 app.get('/', (req, res) => {
     res.send('API WORKING')
