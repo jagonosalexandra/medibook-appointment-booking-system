@@ -32,6 +32,8 @@
   --color-text-secondary: var(--color-text-secondary);
   --color-card: var(--color-card);
 
+  --fill-primary: var(--color-primary);
+
   --text-lg: var(--text-lg);
   --text-sm: var(--text-sm);
   --text-md: var(--text-md);

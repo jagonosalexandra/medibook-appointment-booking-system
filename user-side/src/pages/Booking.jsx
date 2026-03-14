@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import StepIndicator from '../components/StepIndicator'
 import Button from '../components/Button'
-import { data, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import general_practice from '../assets/icons/general_practice.svg'
 import pediatrics from '../assets/icons/pediatrics.svg'
 import cardiology from '../assets/icons/cardiology.svg'
@@ -9,8 +9,16 @@ import obstetrics from '../assets/icons/obstetrics.svg'
 import neurology from '../assets/icons/neurology.svg'
 import orthopedics from '../assets/icons/orthopedics.svg'
 import check from '../assets/icons/check.svg'
+import clock from '../assets/icons/clock.svg'
+import calendar from '../assets/icons/calendar.svg'
+import info from '../assets/icons/info.svg'
 import { fetchAllDoctors } from '../services/doctorService'
 import DoctorCard from '../components/DoctorCard'
+import { fetchSlots } from '../services/timeslotService'
+import { DayPicker, getDefaultClassNames } from "react-day-picker";
+import "react-day-picker/dist/style.css";
+
+const defaultClassNames = getDefaultClassNames();
 
 const stepLabels = ['Department', 'Doctor', 'Schedule', 'Details']
 
@@ -41,6 +49,8 @@ const Booking = () => {
   })
 
   const [doctors, setDoctors] = useState([])
+  const [slots, setSlots] = useState([])
+  const [date, setDate] = useState(new Date())
 
   const getDoctors = async () => {
     try {
@@ -60,9 +70,35 @@ const Booking = () => {
     getDoctors()
   }, [formData.department])
 
+  const getSlots = async () => {
+    const doc = doctors.find(doc => doc.name === formData.doctor)
+
+    if (doc && formData.date) {
+      const data = await fetchSlots(doc._id, formData.date)
+      console.log(data)
+      setSlots(data)
+    }
+  }
+
+  useEffect(() => {
+    getSlots()
+  }, [formData.doctor, formData.date, doctors])
+
   const handleCancel = () => navigate(-1)
   const nextStep = () => setStep((prev) => prev + 1)
   const prevStep = () => setStep((prev) => prev - 1)
+
+  const handleDateChange = (date) => {
+    if (date) {
+      setDate(date);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const formattedDate = `${year}-${month}-${day}`;
+
+      setFormData(prev => ({ ...prev, date: formattedDate }));
+    }
+  }
 
   const handleChange = (input) => e => {
     setFormData((prev) => ({
@@ -70,6 +106,17 @@ const Booking = () => {
       [input]: e
     }))
   }
+
+  const formatDisplayDate = (dateStr) => {
+    if (!dateStr) return "";
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
 
   let stepContent
 
@@ -151,6 +198,120 @@ const Booking = () => {
                 </div>
               )
             })}
+          </div>
+
+          <div className='w-full flex justify-between items-center gap-48'>
+            <div className='w-full max-w-xs'><Button label="Back" variant="secondary" onClick={prevStep} fullWidth /></div>
+            <div className='w-full max-w-xs'><Button label="Next" variant="primary" onClick={nextStep} fullWidth /></div>
+          </div>
+        </div>
+      )
+      break
+    case 3:
+      stepContent = (
+        <div>
+          <h1 className='text-lg text-primary font-bold'>Select Date & Time</h1>
+          <p className='text-sm text-gray-500'>Choose a convenient slot for your appointment with {formData.doctor}</p>
+
+          <div className='grid grid-cols-[3fr_1fr] gap-8 py-8'>
+            {/* LEFT COLUMN */}
+            <div className='flex flex-col gap-6'>
+              <DayPicker
+                mode="single"
+                selected={date}
+                onSelect={handleDateChange}
+                disabled={{ before: new Date() }}
+                navLayout="around"
+                classNames={{
+                  today: `text-primary-dark font-semibold`, 
+                  selected: `bg-primary rounded-full text-white`, 
+                  months: `w-full`,
+                  month_grid: `table w-full mt-2.5 justify-between`,
+                  caption_label: `text-lg`,
+                  weekdays: `flex justify-between items-center w-full`,
+                  weekday: `w-10 h-10`,
+                  week: `flex justify-between w-full`,
+                  day: `w-10 h-10`,
+                  chevron: `fill-primary`,
+                  root: `${defaultClassNames.root} w-full bg-card border-gray-300 rounded-lg shadow-md px-4 py-6`, 
+                }}
+
+              />
+
+              <div className='flex flex-col gap-4 px-4 py-6 bg-card border border-gray-300 rounded-lg shadow-md'>
+                <span className='flex items-center gap-1.5 text-primary-dark font-semibold'><img className='w-5' src={clock} alt='' />Available Time Slots</span>
+
+                <div className='grid grid-cols-4 gap-4'>
+                  {slots.length > 0 ? (
+                    [...slots]
+                      .sort((a, b) => {
+                        const timeA = new Date(`1970/01/01 ${a.time}`);
+                        const timeB = new Date(`1970/01/01 ${b.time}`);
+                        return timeA - timeB;
+                      })
+                      .map((slot) => (
+                        <button
+                          key={slot._id}
+                          onClick={() => handleChange('time')(slot.time)}
+                          disabled={!slot.isAvailable}
+                          className={`py-3 rounded-lg transition-all border-2 
+                                      ${!slot.isAvailable ? 'bg-gray-100 text-gray-400 border-gray-100 cursor-not-allowed' :
+                              formData.time === slot.time ? 'bg-primary/20 border-primary text-primary font-semibold' :
+                                'border-gray-200 hover:border-primary hover:text-primary'}`}
+                        >
+                          {slot.time}
+                        </button>
+                      ))
+                  ) : (
+                    <p className="col-span-4 text-gray-400 italic text-center py-4">No slots found for this date.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT COLUMN */}
+            <div className='flex flex-col gap-8'>
+              <div className='border border-gray-200 rounded-xl overflow-hidden'>
+                <div className='bg-white p-6'>
+                  <span className='font-bold'>Booking Summary</span>
+                  <div className='flex flex-col gap-4 pt-2.5'>
+                    {(() => {
+                      const docObj = doctors.find(d => d.name === formData.doctor);
+                      return (
+                        <>
+                          <div className='flex items-center gap-3'>
+                            <img src={docObj?.photoUrl} alt='' className='w-18 aspect-square rounded-full object-cover object-top bg-gray-100' />
+                            <div>
+                              <p className='font-bold text-lg text-primary'>{formData.doctor || 'Select a doctor'}</p>
+                              <p className='text-xs text-gray-500'>{docObj?.department}</p>
+                            </div>
+                          </div>
+
+                          <ul className='space-y-1 text-sm text-gray-600 pt-3 rounded-lg'>
+                            <li className='flex justify-between'><span>Consultation Fee:</span> <span className='font-medium'>${docObj?.fee || '0'}</span></li>
+                            <li className='flex justify-between'><span>Duration:</span> <span className='font-medium'>1 Hour</span></li>
+                          </ul>
+                        </>
+                      )
+                    })()}
+                  </div>
+                </div>
+                {formData.date && formData.time && (
+                  <div className='w-full px-3 py-6 bg-primary/5 text-sm text-gray-600'>
+                    <p className='uppercase tracking-wider font-bold mb-2.5'>Selected Appointment</p>
+                    <p className='flex items-center gap-1.5'><img className='w-5' src={calendar} alt='' />{formatDisplayDate(formData.date)}</p>
+                    <p className='flex items-center gap-1.5'><img className='w-5' src={clock} alt='' />{formData.time}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className='bg-primary/10 border border-primary/30 rounded-lg px-2.5 py-3.5 text-xs'>
+                <span className='flex items-center gap-1.5 text-sm text-black font-semibold'><img className='w-5' src={info} alt='' />Cancellations</span>
+                <p className='pl-6.5 py-1.5 text-gray-500'>
+                  Cancel at least 24 hours in advance for a full refund. Appointments booked within 24 hours are non-refundable.
+                </p>
+              </div>
+            </div>
           </div>
 
           <div className='w-full flex justify-between items-center gap-48'>
