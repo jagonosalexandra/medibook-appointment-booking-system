@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import StepIndicator from '../components/StepIndicator'
 import Button from '../components/Button'
-import { useNavigate } from 'react-router-dom'
+import { data, useNavigate } from 'react-router-dom'
 import general_practice from '../assets/icons/general_practice.svg'
 import pediatrics from '../assets/icons/pediatrics.svg'
 import cardiology from '../assets/icons/cardiology.svg'
@@ -9,8 +9,10 @@ import obstetrics from '../assets/icons/obstetrics.svg'
 import neurology from '../assets/icons/neurology.svg'
 import orthopedics from '../assets/icons/orthopedics.svg'
 import check from '../assets/icons/check.svg'
+import { fetchAllDoctors } from '../services/doctorService'
+import DoctorCard from '../components/DoctorCard'
 
-const stepLabels = ['Select a Department', 'Choose Your Doctor', 'Select Date & Time', 'Summary']
+const stepLabels = ['Department', 'Doctor', 'Schedule', 'Details']
 
 const departments = [
   { id: 'general', name: 'General Practice', icon: general_practice, desc: 'Primary care, routine checkups, and general wellness consultation.' },
@@ -38,6 +40,26 @@ const Booking = () => {
     visit_reason: ''
   })
 
+  const [doctors, setDoctors] = useState([])
+
+  const getDoctors = async () => {
+    try {
+      const data = await fetchAllDoctors()
+
+      if (formData.department) {
+        setDoctors(data.filter(doc => doc.department === formData.department))
+      } else {
+        setDoctors(data)
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    getDoctors()
+  }, [formData.department])
+
   const handleCancel = () => navigate(-1)
   const nextStep = () => setStep((prev) => prev + 1)
   const prevStep = () => setStep((prev) => prev - 1)
@@ -55,7 +77,7 @@ const Booking = () => {
     case 1:
       stepContent = (
         <div>
-          <h1 className='text-lg text-primary font-bold'>{stepLabels[0]}</h1>
+          <h1 className='text-lg text-primary font-bold'>Select a Department</h1>
           <p className='text-sm text-gray-500'>Please choose the medical department for your appointment.</p>
 
           <div className='grid grid-cols-3 gap-12 py-8'>
@@ -103,21 +125,37 @@ const Booking = () => {
     case 2:
       stepContent = (
         <div>
-          <h1 className='text-lg font-bold'>{stepLabels[1]}</h1>
+          <h1 className='text-lg text-primary font-bold'>Choose Your Doctor</h1>
+          <p className='text-sm text-gray-500'>Choose from our list of specialists</p>
 
-          <div className='flex justify-between items-center gap-[70%]'>
-            <Button
-              label="Back"
-              variant="secondary"
-              onClick={prevStep}
-              fullWidth
-            />
-            <Button
-              label="Next"
-              variant="primary"
-              onClick={nextStep}
-              fullWidth
-            />
+          <div className='grid grid-cols-4 gap-4 py-8'>
+            {doctors.map((doc, index) => {
+              const isSelected = formData.doctor === doc.name;
+
+              return (
+                <div key={index} onClick={() => handleChange('doctor')(doc.name)} className="relative cursor-pointer">
+                  {isSelected && (
+                    <div className='absolute z-10 top-6 right-4 w-7 h-7 bg-primary-dark rounded-full flex items-center justify-center shadow-md'>
+                      <img src={check} alt='selected' className='w-4' />
+                    </div>
+                  )}
+                  <DoctorCard
+                    name={doc.name}
+                    photoUrl={doc.photoUrl}
+                    department={doc.department}
+                    experience={doc.experience}
+                    fee={doc.fee}
+                    isBookingMode={true}
+                    isSelected={isSelected}
+                  />
+                </div>
+              )
+            })}
+          </div>
+
+          <div className='w-full flex justify-between items-center gap-48'>
+            <div className='w-full max-w-xs'><Button label="Back" variant="secondary" onClick={prevStep} fullWidth /></div>
+            <div className='w-full max-w-xs'><Button label="Next" variant="primary" onClick={nextStep} fullWidth /></div>
           </div>
         </div>
       )
