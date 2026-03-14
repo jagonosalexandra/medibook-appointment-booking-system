@@ -12,11 +12,16 @@ import check from '../assets/icons/check.svg'
 import clock from '../assets/icons/clock.svg'
 import calendar from '../assets/icons/calendar.svg'
 import info from '../assets/icons/info.svg'
+import down_arrow from '../assets/icons/down_arrow.svg'
 import { fetchAllDoctors } from '../services/doctorService'
 import DoctorCard from '../components/DoctorCard'
 import { fetchSlots } from '../services/timeslotService'
 import { DayPicker, getDefaultClassNames } from "react-day-picker";
 import "react-day-picker/dist/style.css";
+import InputField from '../components/InputField'
+import APPOINTMENT_TYPES from '../constants/appointmentTypes'
+import { Label, Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react'
+import Confirmation from './Confirmation'
 
 const defaultClassNames = getDefaultClassNames();
 
@@ -202,7 +207,7 @@ const Booking = () => {
 
           <div className='w-full flex justify-between items-center gap-48'>
             <div className='w-full max-w-xs'><Button label="Back" variant="secondary" onClick={prevStep} fullWidth /></div>
-            <div className='w-full max-w-xs'><Button label="Next" variant="primary" onClick={nextStep} fullWidth /></div>
+            <div className='w-full max-w-xs'><Button label="Next" variant={!formData.doctor ? "disabled" : "primary"} onClick={nextStep} fullWidth disabled={!formData.doctor} /></div>
           </div>
         </div>
       )
@@ -223,8 +228,8 @@ const Booking = () => {
                 disabled={{ before: new Date() }}
                 navLayout="around"
                 classNames={{
-                  today: `text-primary-dark font-semibold`, 
-                  selected: `bg-primary rounded-full text-white`, 
+                  today: `text-primary-dark font-semibold`,
+                  selected: `bg-primary rounded-full text-white`,
                   months: `w-full`,
                   month_grid: `table w-full mt-2.5 justify-between`,
                   caption_label: `text-lg`,
@@ -233,7 +238,7 @@ const Booking = () => {
                   week: `flex justify-between w-full`,
                   day: `w-10 h-10`,
                   chevron: `fill-primary`,
-                  root: `${defaultClassNames.root} w-full bg-card border-gray-300 rounded-lg shadow-md px-4 py-6`, 
+                  root: `${defaultClassNames.root} w-full bg-card border border-gray-300 rounded-lg shadow-md px-4 py-6`,
                 }}
 
               />
@@ -316,11 +321,98 @@ const Booking = () => {
 
           <div className='w-full flex justify-between items-center gap-48'>
             <div className='w-full max-w-xs'><Button label="Back" variant="secondary" onClick={prevStep} fullWidth /></div>
+            <div className='w-full max-w-xs'><Button label="Next" variant={!formData.date || !formData.time ? "disabled" : "primary"} onClick={nextStep} fullWidth disabled={!formData.date || !formData.time} /></div>
+          </div>
+        </div>
+      )
+      break
+    case 4:
+      stepContent = (
+        <div>
+          <h1 className='text-lg text-primary font-bold'>Patient Information</h1>
+          <p className='text-sm text-gray-500'>Please provide your details to finalize your appointment booking.</p>
+
+          <div className='grid grid-cols-[3fr_1fr] py-8'>
+            <div className='bg-card px-4 py-2.5 border border-gray-300 rounded-lg shadow-md'>
+              <div className='grid grid-cols-2'>
+                <InputField
+                  label="Full Name"
+                  type="text"
+                  value={formData.name}
+                  onChange={handleChange('name')}
+                  placeholder="e.g. John Doe"
+                />
+
+                <InputField
+                  label="Email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange('email')}
+                  placeholder="e.g. john.doe@example.com"
+                />
+
+                <InputField
+                  label="Phone Number"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={handleChange('phone')}
+                  placeholder="+1 (555) 000-0000"
+                />
+
+                <div className='flex flex-col w-full gap-1.5 px-2 py-3.5'>
+                  <Listbox value={formData.appointment_type} onChange={(val) => setFormData(prev => ({ ...prev, appointment_type: val }))}>
+                    <Label>Appointment Type</Label>
+                    <div className='relative'>
+                      <ListboxButton className={({ open }) => `flex justify-between items-center w-full cursor-pointer rounded-lg border border-border px-1.5 py-2.5 text-left text-gray-700 ${open ? 'outline outline-primary/15' : ''} transition-all`}>
+                        <span className='block truncate'>
+                          {formData.appointment_type || "Select appointment type"}
+                        </span>
+                        <img src={down_arrow} alt='' />
+                      </ListboxButton>
+
+                      <ListboxOptions transition className='absolute z-10 mt-1 w-full overflow-auto rounded-lg bg-white px-1.5 py-2.5 text-base shadow-lg ring-2 ring-primary ring-opacity-5 focus:outline-none'>
+                        {APPOINTMENT_TYPES.map((type) => (
+                          <ListboxOption
+                            key={type.id}
+                            value={type.label}
+                            className={({ selected }) =>
+                              `relative cursor-pointer select-none rounded-lg py-2.5 pl-4 pr-4 transition-colors ${selected ? 'text-primary font-semibold bg-primary/15' : ''} hover:bg-primary/5`
+                            }
+                          >
+                            {type.label}
+                          </ListboxOption>
+                        ))}
+                      </ListboxOptions>
+                    </div>
+                  </Listbox>
+                </div>
+
+                <label className='col-span-2 flex flex-col gap-1.5 w-full px-2 py-3.5'>
+                  Reason for Visit
+                  <textarea
+                    className='border border-border focus:outline-2 focus:outline-primary rounded-lg px-1.5 py-2.5 resize-none'
+                    rows='4' name=''
+                    placeholder='Briefly describe your symptoms or reason for the visit...'
+                    value={formData.visit_reason}
+                    onChange={(e) => handleChange('visit_reason')(e.target.value)}
+                  ></textarea>
+                </label>
+              </div>
+
+            </div>
+          </div>
+
+          <div className='w-full flex justify-between items-center gap-48'>
+            <div className='w-full max-w-xs'><Button label="Back" variant="secondary" onClick={prevStep} fullWidth /></div>
             <div className='w-full max-w-xs'><Button label="Next" variant="primary" onClick={nextStep} fullWidth /></div>
           </div>
         </div>
       )
       break
+    case 5:
+      (
+        <Confirmation />
+      )
   }
 
   return (
