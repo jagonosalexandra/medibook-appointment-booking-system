@@ -2,12 +2,6 @@ import React, { useEffect, useState } from 'react'
 import StepIndicator from '../components/StepIndicator'
 import Button from '../components/Button'
 import { useNavigate } from 'react-router-dom'
-import general_practice from '../assets/icons/general_practice.svg'
-import pediatrics from '../assets/icons/pediatrics.svg'
-import cardiology from '../assets/icons/cardiology.svg'
-import obstetrics from '../assets/icons/obstetrics.svg'
-import neurology from '../assets/icons/neurology.svg'
-import orthopedics from '../assets/icons/orthopedics.svg'
 import check from '../assets/icons/check.svg'
 import clock from '../assets/icons/clock.svg'
 import calendar from '../assets/icons/calendar.svg'
@@ -19,22 +13,15 @@ import { fetchSlots } from '../services/timeslotService'
 import { DayPicker, getDefaultClassNames } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import InputField from '../components/InputField'
+import TimeSlotButton from '../components/TimeSlotButton'
 import APPOINTMENT_TYPES from '../constants/appointmentTypes'
 import { Label, Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react'
 import Confirmation from './Confirmation'
+import DEPARTMENTS from '../constants/departments'
 
 const defaultClassNames = getDefaultClassNames();
 
 const stepLabels = ['Department', 'Doctor', 'Schedule', 'Details']
-
-const departments = [
-  { id: 'general', name: 'General Practice', icon: general_practice, desc: 'Primary care, routine checkups, and general wellness consultation.' },
-  { id: 'pedia', name: 'Pediatrics', icon: pediatrics, desc: 'Comprehensive healthcare for infants, children, and adolescents.' },
-  { id: 'cardio', name: 'Cardiology', icon: cardiology, desc: 'Specialized heart care, diagnostics, and cardiovascular treatments.' },
-  { id: 'obgyn', name: 'Obstetrics & Gynecology', icon: obstetrics, desc: 'Comprehensive reproductive health, pregnancy care, and women’s wellness services.' },
-  { id: 'neuro', name: 'Neurology', icon: neurology, desc: 'Diagnosis and treatment of brain, spinal cord, and nervous system disorders.' },
-  { id: 'ortho', name: 'Orthopedics', icon: orthopedics, desc: 'Expert care for bones, joints, ligaments, and muscle conditions.' },
-];
 
 const Booking = () => {
 
@@ -133,7 +120,7 @@ const Booking = () => {
           <p className='text-sm text-gray-500'>Please choose the medical department for your appointment.</p>
 
           <div className='grid grid-cols-3 gap-12 py-8'>
-            {departments.map((dept) => {
+            {DEPARTMENTS.map((dept) => {
               const isSelected = formData.department === dept.name;
 
               return (
@@ -240,7 +227,6 @@ const Booking = () => {
                   chevron: `fill-primary`,
                   root: `${defaultClassNames.root} w-full bg-card border border-gray-300 rounded-lg shadow-md px-4 py-6`,
                 }}
-
               />
 
               <div className='flex flex-col gap-4 px-4 py-6 bg-card border border-gray-300 rounded-lg shadow-md'>
@@ -255,17 +241,12 @@ const Booking = () => {
                         return timeA - timeB;
                       })
                       .map((slot) => (
-                        <button
+                        <TimeSlotButton
                           key={slot._id}
-                          onClick={() => handleChange('time')(slot.time)}
-                          disabled={!slot.isAvailable}
-                          className={`py-3 rounded-lg transition-all border-2 
-                                      ${!slot.isAvailable ? 'bg-gray-100 text-gray-400 border-gray-100 cursor-not-allowed' :
-                              formData.time === slot.time ? 'bg-primary/20 border-primary text-primary font-semibold' :
-                                'border-gray-200 hover:border-primary hover:text-primary'}`}
-                        >
-                          {slot.time}
-                        </button>
+                          slot={slot}
+                          isSelected={formData.time === slot.time}
+                          onClick={(selectedTime) => handleChange('time')(selectedTime)}
+                        />
                       ))
                   ) : (
                     <p className="col-span-4 text-gray-400 italic text-center py-4">No slots found for this date.</p>
