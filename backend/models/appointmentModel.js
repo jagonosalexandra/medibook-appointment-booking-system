@@ -7,6 +7,7 @@ const appointmentSchema = new mongoose.Schema({
     email: { type: String, required: true },
     docId: { type: mongoose.Schema.Types.ObjectId, ref: 'Doctor', required: true },
     doctor: { type: String, required: true },
+    department: { type: String, required: true },
     date: { type: String, required: true },  
     time: { type: String, required: true },
     appointmentType: { type: String, required: true },
@@ -19,6 +20,7 @@ const appointmentSchema = new mongoose.Schema({
     },
     adminNotes: { type: String, default: "" },
 }, { timestamps: true })
+
 
 const appointmentModel = mongoose.models.appointment || mongoose.model('appointment', appointmentSchema)
 

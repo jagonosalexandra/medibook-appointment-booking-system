@@ -9,7 +9,7 @@ const timeslots = async (req, res) => {
             return res.status(400).json({ success: false, message: "Doctor ID and date are required." });
         }
 
-        const slots = await timeslotModel.find({ docId: docId, date: date });
+        const slots = await timeslotModel.find({docId, date });
 
         res.status(200).json({ success: true, slots, message: "Fetch slots!"});
     } catch (error) {
