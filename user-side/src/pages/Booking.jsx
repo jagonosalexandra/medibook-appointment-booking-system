@@ -4,7 +4,6 @@ import Button from '../components/Button'
 import { useNavigate } from 'react-router-dom'
 import check from '../assets/icons/check.svg'
 import clock from '../assets/icons/clock.svg'
-import calendar from '../assets/icons/calendar.svg'
 import info from '../assets/icons/info.svg'
 import down_arrow from '../assets/icons/down_arrow.svg'
 import user from '../assets/icons/user.svg'
@@ -21,6 +20,7 @@ import { Label, Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@h
 import Confirmation from './Confirmation'
 import DEPARTMENTS from '../constants/departments'
 import { validateForm } from '../utils/validators'
+import { createAppointment } from '../services/appointmentService'
 
 const defaultClassNames = getDefaultClassNames();
 
@@ -33,6 +33,7 @@ const Booking = () => {
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState({
     department: '',
+    docId: '',
     doctor: '',
     date: '',
     time: '',
@@ -40,12 +41,15 @@ const Booking = () => {
     phone: '',
     email: '',
     appointment_type: '',
-    visit_reason: ''
+    visit_reason: '',
+    fee: 0
   })
   const [doctors, setDoctors] = useState([])
   const [slots, setSlots] = useState([])
   const [date, setDate] = useState(new Date())
   const [errors, setErrors] = useState({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
 
   const selectedDoctor = doctors.find(d => d.name === formData.doctor);
 
@@ -89,7 +93,7 @@ const Booking = () => {
       setSlots([])
     }
     if (step === 2) {
-      setFormData(prev => ({ ...prev, doctor: '' }))
+      setFormData(prev => ({ ...prev, doctor: '', docId: '' }))
     }
     setStep(prev => prev - 1)
   }
@@ -134,16 +138,39 @@ const Booking = () => {
   };
 
   const handleNextStep = () => {
-    if (step === 4) {
-      const validationErrors = validateForm(formData);
-      if (Object.keys(validationErrors).length > 0) {
-        setErrors(validationErrors);
-        return;
-      }
+    setErrors({})
+    nextStep()
+  }
+
+  const handleSubmit = async () => {
+    const validationErrors = validateForm(formData);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
     }
 
-    setErrors({});
-    nextStep();
+    setIsSubmitting(true);
+    setSubmitError('');
+
+    try {
+      const result = await createAppointment(formData);
+      const appointmentData = result.data || result;
+
+      if (appointmentData && appointmentData.referenceNumber) {
+        setFormData(prev => ({
+          ...prev,
+          referenceNumber: appointmentData.referenceNumber
+        }));
+        setStep(5);
+      } else {
+        throw new Error("Reference number missing from server response.");
+      }
+    } catch (error) {
+      console.error("Submission Error:", error);
+      setSubmitError(error.message || "Something went wrong while booking.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   let stepContent
@@ -206,9 +233,18 @@ const Booking = () => {
           <div className='grid grid-cols-4 gap-4 py-8'>
             {doctors.map((doc) => {
               const isSelected = formData.doctor === doc.name;
+              const baseFee = Number(doc.fee) || 0
+              const serviceFee = 5.00
 
               return (
-                <div key={doc._id} onClick={() => handleChange('doctor')(doc.name)} className="relative cursor-pointer">
+                <div key={doc._id} onClick={() => {
+                  setFormData(prev => ({
+                    ...prev,
+                    docId: doc._id,
+                    doctor: doc.name,
+                    fee: baseFee + serviceFee
+                  }))
+                }} className="relative cursor-pointer">
                   {isSelected && (
                     <div className='absolute z-10 top-6 right-4 w-7 h-7 bg-primary-dark rounded-full flex items-center justify-center shadow-md'>
                       <img src={check} alt='selected' className='w-4' />
@@ -331,7 +367,7 @@ const Booking = () => {
 
                   <hr className='border-none outline-none h-px bg-gray-300 my-6' />
 
-                  <p className='flex justify-between text-md font-bold'>Total <span className='scale-120 text-primary'>${selectedDoctor?.fee + Number(5.00)}</span></p>
+                  <p className='flex justify-between text-md font-bold'>Total <span className='scale-120 text-primary'>${formData.fee}</span></p>
                 </div>
 
                 <div className='bg-primary/10 border border-primary/30 rounded-lg px-2.5 py-3.5 mt-4 text-xs'>
@@ -422,7 +458,7 @@ const Booking = () => {
                 <label className='col-span-2 flex flex-col gap-1.5 w-full px-2 py-3.5'>
                   Reason for Visit
                   <textarea
-                    className='border border-border focus:outline-2 focus:outline-primary rounded-lg px-1.5 py-2.5 resize-none' 
+                    className='border border-border focus:outline-2 focus:outline-primary rounded-lg px-1.5 py-2.5 resize-none'
                     rows={10}
                     name='reason-for-visit'
                     placeholder='Briefly describe your symptoms or reason for the visit...'
@@ -470,7 +506,7 @@ const Booking = () => {
 
                   <hr className='border-none outline-none h-px bg-gray-300 my-4' />
 
-                  <p className='flex justify-between text-md font-bold'>Total <span className='scale-120 text-primary'>${selectedDoctor?.fee + Number(5.00)}</span></p>
+                  <p className='flex justify-between text-md font-bold'>Total <span className='scale-120 text-primary'>${formData.fee}</span></p>
                 </div>
 
                 <div className='bg-primary/10 border border-primary/30 rounded-lg px-2.5 py-3.5 mt-4 text-xs'>
@@ -484,15 +520,32 @@ const Booking = () => {
           </div>
 
 
-          <div className='w-full flex justify-between items-center gap-48'>
-            <div className='w-full max-w-xs'><Button label="Back" variant="secondary" onClick={prevStep} fullWidth /></div>
-            <div className='w-full max-w-xs'><Button label="Next" variant={isStep4Incomplete ? "disabled" : "primary"} onClick={handleNextStep} fullWidth disabled={isStep4Incomplete} /></div>
+          <div className='w-full flex flex-col items-end gap-3'>
+            {submitError && (
+              <p className='text-error text-sm text-center w-full'>{submitError}</p>
+            )}
+            <div className='w-full flex justify-between items-center gap-48'>
+              <div className='w-full max-w-xs'>
+                <Button label="Back" variant="secondary" onClick={prevStep} fullWidth />
+              </div>
+              <div className='w-full max-w-xs'>
+                <Button
+                  label={isSubmitting ? "Booking..." : "Book Appointment"}
+                  variant={isStep4Incomplete || isSubmitting ? "disabled" : "primary"}
+                  onClick={handleSubmit}
+                  fullWidth
+                  disabled={isStep4Incomplete || isSubmitting}
+                />
+              </div>
+            </div>
           </div>
         </div>
       )
       break
     case 5:
       return <Confirmation formData={formData} />
+    default:
+      stepContent = null
   }
 
   return (

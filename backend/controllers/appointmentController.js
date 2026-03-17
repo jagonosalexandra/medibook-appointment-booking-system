@@ -5,7 +5,7 @@ export const createAppointment = async (req, res) => {
     try {
         const referenceNumber = await generateReference()
 
-        const appointment = await Appointment.create({
+        const appointment = await appointmentModel.create({
             ...req.body,
             referenceNumber,
             status: 'pending'
