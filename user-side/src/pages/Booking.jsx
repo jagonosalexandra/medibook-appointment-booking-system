@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import StepIndicator from '../components/StepIndicator'
 import Button from '../components/Button'
 import { useNavigate } from 'react-router-dom'
@@ -7,6 +7,8 @@ import clock from '../assets/icons/clock.svg'
 import calendar from '../assets/icons/calendar.svg'
 import info from '../assets/icons/info.svg'
 import down_arrow from '../assets/icons/down_arrow.svg'
+import user from '../assets/icons/user.svg'
+import department from '../assets/icons/department.svg'
 import { fetchAllDoctors } from '../services/doctorService'
 import DoctorCard from '../components/DoctorCard'
 import { fetchSlots } from '../services/timeslotService'
@@ -18,6 +20,7 @@ import APPOINTMENT_TYPES from '../constants/appointmentTypes'
 import { Label, Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react'
 import Confirmation from './Confirmation'
 import DEPARTMENTS from '../constants/departments'
+import { validateForm } from '../utils/validators'
 
 const defaultClassNames = getDefaultClassNames();
 
@@ -39,46 +42,62 @@ const Booking = () => {
     appointment_type: '',
     visit_reason: ''
   })
-
   const [doctors, setDoctors] = useState([])
   const [slots, setSlots] = useState([])
   const [date, setDate] = useState(new Date())
+  const [errors, setErrors] = useState({})
 
-  const getDoctors = async () => {
-    try {
-      const data = await fetchAllDoctors()
-
-      if (formData.department) {
-        setDoctors(data.filter(doc => doc.department === formData.department))
-      } else {
-        setDoctors(data)
-      }
-    } catch (error) {
-      console.error(error)
-    }
-  }
+  const selectedDoctor = doctors.find(d => d.name === formData.doctor);
 
   useEffect(() => {
+    const getDoctors = async () => {
+      try {
+        const data = await fetchAllDoctors()
+        setDoctors(
+          formData.department
+            ? data.filter(doc => doc.department === formData.department)
+            : data
+        )
+      } catch (error) {
+        console.error(error)
+      }
+    }
     getDoctors()
   }, [formData.department])
 
-  const getSlots = async () => {
-    const doc = doctors.find(doc => doc.name === formData.doctor)
-
-    if (doc && formData.date) {
-      const data = await fetchSlots(doc._id, formData.date)
-      console.log(data)
-      setSlots(data)
-    }
-  }
-
   useEffect(() => {
+    const getSlots = async () => {
+      const doc = doctors.find(doc => doc.name === formData.doctor)
+      if (doc && formData.date) {
+        try {
+          const data = await fetchSlots(doc._id, formData.date)
+          setSlots(data)
+        } catch (error) {
+          console.error("Failed to fetch slots:", error)
+          setSlots([])
+        }
+      }
+    }
     getSlots()
   }, [formData.doctor, formData.date, doctors])
 
   const handleCancel = () => navigate(-1)
   const nextStep = () => setStep((prev) => prev + 1)
-  const prevStep = () => setStep((prev) => prev - 1)
+  const prevStep = () => {
+    if (step === 3) {
+      setFormData(prev => ({ ...prev, time: '', date: '' }))
+      setSlots([])
+    }
+    if (step === 2) {
+      setFormData(prev => ({ ...prev, doctor: '' }))
+    }
+    setStep(prev => prev - 1)
+  }
+
+  const isStep4Incomplete = useMemo(
+    () => Object.keys(validateForm(formData)).length > 0,
+    [formData]
+  )
 
   const handleDateChange = (date) => {
     if (date) {
@@ -92,22 +111,39 @@ const Booking = () => {
     }
   }
 
-  const handleChange = (input) => e => {
-    setFormData((prev) => ({
-      ...prev,
-      [input]: e
-    }))
+  const handleChange = (input) => (value) => {
+    setFormData((prev) => ({ ...prev, [input]: value }))
+
+    if (errors[input]) {
+      setErrors((prev) => {
+        const updated = { ...prev }
+        delete updated[input]
+        return updated
+      })
+    }
   }
 
   const formatDisplayDate = (dateStr) => {
     if (!dateStr) return "";
-    const d = new Date(dateStr);
+    const d = new Date(dateStr + "T00:00:00");
     return d.toLocaleDateString('en-US', {
-      weekday: 'short',
       month: 'short',
       day: 'numeric',
       year: 'numeric'
     });
+  };
+
+  const handleNextStep = () => {
+    if (step === 4) {
+      const validationErrors = validateForm(formData);
+      if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
+        return;
+      }
+    }
+
+    setErrors({});
+    nextStep();
   };
 
   let stepContent
@@ -168,11 +204,11 @@ const Booking = () => {
           <p className='text-sm text-gray-500'>Choose from our list of specialists</p>
 
           <div className='grid grid-cols-4 gap-4 py-8'>
-            {doctors.map((doc, index) => {
+            {doctors.map((doc) => {
               const isSelected = formData.doctor === doc.name;
 
               return (
-                <div key={index} onClick={() => handleChange('doctor')(doc.name)} className="relative cursor-pointer">
+                <div key={doc._id} onClick={() => handleChange('doctor')(doc.name)} className="relative cursor-pointer">
                   {isSelected && (
                     <div className='absolute z-10 top-6 right-4 w-7 h-7 bg-primary-dark rounded-full flex items-center justify-center shadow-md'>
                       <img src={check} alt='selected' className='w-4' />
@@ -256,46 +292,54 @@ const Booking = () => {
             </div>
 
             {/* RIGHT COLUMN */}
-            <div className='flex flex-col gap-8'>
-              <div className='border border-gray-200 rounded-xl overflow-hidden'>
-                <div className='bg-white p-6'>
-                  <span className='font-bold'>Booking Summary</span>
-                  <div className='flex flex-col gap-4 pt-2.5'>
-                    {(() => {
-                      const docObj = doctors.find(d => d.name === formData.doctor);
-                      return (
-                        <>
-                          <div className='flex items-center gap-3'>
-                            <img src={docObj?.photoUrl} alt='' className='w-18 aspect-square rounded-full object-cover object-top bg-gray-100' />
-                            <div>
-                              <p className='font-bold text-lg text-primary'>{formData.doctor || 'Select a doctor'}</p>
-                              <p className='text-xs text-gray-500'>{docObj?.department}</p>
-                            </div>
-                          </div>
-
-                          <ul className='space-y-1 text-sm text-gray-600 pt-3 rounded-lg'>
-                            <li className='flex justify-between'><span>Consultation Fee:</span> <span className='font-medium'>${docObj?.fee || '0'}</span></li>
-                            <li className='flex justify-between'><span>Duration:</span> <span className='font-medium'>1 Hour</span></li>
-                          </ul>
-                        </>
-                      )
-                    })()}
+            <div className='bg-white border border-gray-200 rounded-xl overflow-hidden p-6 shadow-md'>
+              <span className='font-bold'>Booking Summary</span>
+              <div className='flex flex-col gap-4 pt-2.5'>
+                <div>
+                  <div className='flex items-center gap-2.5 py-1.5'>
+                    <img className='w-10 px-2.5 py-3 bg-primary/20 rounded-lg' src={user} alt='' />
+                    <p className='text-sm text-gray-500 font-bold'>
+                      DOCTOR
+                      <span className='block text-md font-medium text-black'>{selectedDoctor?.name}</span>
+                    </p>
                   </div>
+
+                  <div className='flex items-center gap-2.5 py-1.5'>
+                    <img className='w-10 px-2.5 py-3 bg-primary/20 rounded-lg' src={department} alt='' />
+                    <p className='text-sm text-gray-500 font-bold'>
+                      DEPARTMENT
+                      <span className='block text-md font-medium text-black'>{selectedDoctor?.department}</span>
+                    </p>
+                  </div>
+
+                  {formData?.date && formData?.time && (
+                    <div className='flex items-center gap-2.5 py-1.5'>
+                      <img className='w-10 px-2.5 py-3 bg-primary/20 rounded-lg' src={clock} alt='' />
+                      <p className='text-sm text-gray-500 font-bold'>
+                        DATE & TIME
+                        <span className='block text-md font-medium text-black'>{formatDisplayDate(formData?.date)}, ${formData?.time}</span>
+                      </p>
+                    </div>
+                  )}
+
+                  < hr className='border-none outline-none h-px bg-gray-300 my-6' />
+
+                  <ul className='space-y-1 text-sm text-gray-600 pt-3 rounded-lg'>
+                    <li className='flex justify-between'><span className='text-gray-500'>Consultation Fee:</span> <span className='font-semibold text-black'>${selectedDoctor?.fee || '0'}</span></li>
+                    <li className='flex justify-between'><span className='text-gray-500'>Service Fee:</span> <span className='font-semibold text-black'>$5.00</span></li>
+                  </ul>
+
+                  <hr className='border-none outline-none h-px bg-gray-300 my-6' />
+
+                  <p className='flex justify-between text-md font-bold'>Total <span className='scale-120 text-primary'>${selectedDoctor?.fee + Number(5.00)}</span></p>
                 </div>
-                {formData.date && formData.time && (
-                  <div className='w-full px-3 py-6 bg-primary/5 text-sm text-gray-600'>
-                    <p className='uppercase tracking-wider font-bold mb-2.5'>Selected Appointment</p>
-                    <p className='flex items-center gap-1.5'><img className='w-5' src={calendar} alt='' />{formatDisplayDate(formData.date)}</p>
-                    <p className='flex items-center gap-1.5'><img className='w-5' src={clock} alt='' />{formData.time}</p>
-                  </div>
-                )}
-              </div>
 
-              <div className='bg-primary/10 border border-primary/30 rounded-lg px-2.5 py-3.5 text-xs'>
-                <span className='flex items-center gap-1.5 text-sm text-black font-semibold'><img className='w-5' src={info} alt='' />Cancellations</span>
-                <p className='pl-6.5 py-1.5 text-gray-500'>
-                  Cancel at least 24 hours in advance for a full refund. Appointments booked within 24 hours are non-refundable.
-                </p>
+                <div className='bg-primary/10 border border-primary/30 rounded-lg px-2.5 py-3.5 mt-4 text-xs'>
+                  <span className='flex items-center gap-1.5 text-sm text-black font-semibold'><img className='w-5' src={info} alt='' />Cancellations</span>
+                  <p className='pl-6.5 py-1.5 text-gray-500'>
+                    Cancel at least 24 hours in advance for a full refund. Appointments booked within 24 hours are non-refundable.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -313,8 +357,8 @@ const Booking = () => {
           <h1 className='text-lg text-primary font-bold'>Patient Information</h1>
           <p className='text-sm text-gray-500'>Please provide your details to finalize your appointment booking.</p>
 
-          <div className='grid grid-cols-[3fr_1fr] py-8'>
-            <div className='bg-card px-4 py-2.5 border border-gray-300 rounded-lg shadow-md'>
+          <div className='grid grid-cols-[3fr_1fr] gap-8 py-8'>
+            <div className='bg-card px-4 py-2.5 border border-gray-300 rounded-lg shadow-md max-h-fit'>
               <div className='grid grid-cols-2'>
                 <InputField
                   label="Full Name"
@@ -322,6 +366,8 @@ const Booking = () => {
                   value={formData.name}
                   onChange={handleChange('name')}
                   placeholder="e.g. John Doe"
+                  error={errors.name}
+                  required
                 />
 
                 <InputField
@@ -330,6 +376,8 @@ const Booking = () => {
                   value={formData.email}
                   onChange={handleChange('email')}
                   placeholder="e.g. john.doe@example.com"
+                  error={errors.email}
+                  required
                 />
 
                 <InputField
@@ -338,6 +386,8 @@ const Booking = () => {
                   value={formData.phone}
                   onChange={handleChange('phone')}
                   placeholder="+1 (555) 000-0000"
+                  error={errors.phone}
+                  required
                 />
 
                 <div className='flex flex-col w-full gap-1.5 px-2 py-3.5'>
@@ -366,34 +416,83 @@ const Booking = () => {
                       </ListboxOptions>
                     </div>
                   </Listbox>
+                  {errors.appointment_type && <p className="text-error text-xs px-2">{errors.appointment_type}</p>}
                 </div>
 
                 <label className='col-span-2 flex flex-col gap-1.5 w-full px-2 py-3.5'>
                   Reason for Visit
                   <textarea
-                    className='border border-border focus:outline-2 focus:outline-primary rounded-lg px-1.5 py-2.5 resize-none'
-                    rows='4' name=''
+                    className='border border-border focus:outline-2 focus:outline-primary rounded-lg px-1.5 py-2.5 resize-none' 
+                    rows={10}
+                    name='reason-for-visit'
                     placeholder='Briefly describe your symptoms or reason for the visit...'
                     value={formData.visit_reason}
                     onChange={(e) => handleChange('visit_reason')(e.target.value)}
                   ></textarea>
                 </label>
               </div>
+            </div>
 
+            <div className='bg-white border border-gray-200 rounded-xl overflow-hidden p-6 shadow-md'>
+              <span className='font-bold'>Booking Summary</span>
+              <div className='flex flex-col gap-4 pt-2.5'>
+                <div>
+                  <div className='flex items-center gap-2.5 py-1.5'>
+                    <img className='w-10 px-2.5 py-3 bg-primary/20 rounded-lg' src={user} alt='' />
+                    <p className='text-sm text-gray-500 font-bold'>
+                      DOCTOR
+                      <span className='block text-md font-medium text-black'>{selectedDoctor?.name}</span>
+                    </p>
+                  </div>
+
+                  <div className='flex items-center gap-2.5 py-1.5'>
+                    <img className='w-10 px-2.5 py-3 bg-primary/20 rounded-lg' src={department} alt='' />
+                    <p className='text-sm text-gray-500 font-bold'>
+                      DEPARTMENT
+                      <span className='block text-md font-medium text-black'>{selectedDoctor?.department}</span>
+                    </p>
+                  </div>
+
+                  <div className='flex items-center gap-2.5 py-1.5'>
+                    <img className='w-10 px-2.5 py-3 bg-primary/20 rounded-lg' src={clock} alt='' />
+                    <p className='text-sm text-gray-500 font-bold'>
+                      DATE & TIME
+                      <span className='block text-md font-medium text-black'>{formatDisplayDate(formData?.date)}, {formData?.time}</span>
+                    </p>
+                  </div>
+
+                  <hr className='border-none outline-none h-px bg-gray-300 my-4' />
+
+                  <ul className='space-y-1 text-sm text-gray-600 pt-3 rounded-lg'>
+                    <li className='flex justify-between'><span className='text-gray-500'>Consultation Fee:</span> <span className='font-semibold text-black'>${selectedDoctor?.fee || '0'}</span></li>
+                    <li className='flex justify-between'><span className='text-gray-500'>Service Fee:</span> <span className='font-semibold text-black'>$5.00</span></li>
+                  </ul>
+
+                  <hr className='border-none outline-none h-px bg-gray-300 my-4' />
+
+                  <p className='flex justify-between text-md font-bold'>Total <span className='scale-120 text-primary'>${selectedDoctor?.fee + Number(5.00)}</span></p>
+                </div>
+
+                <div className='bg-primary/10 border border-primary/30 rounded-lg px-2.5 py-3.5 mt-4 text-xs'>
+                  <span className='flex items-center gap-1.5 text-sm text-black font-semibold'><img className='w-5' src={info} alt='' />Cancellations</span>
+                  <p className='pl-6.5 py-1.5 text-gray-500'>
+                    Cancel at least 24 hours in advance for a full refund. Appointments booked within 24 hours are non-refundable.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
+
           <div className='w-full flex justify-between items-center gap-48'>
             <div className='w-full max-w-xs'><Button label="Back" variant="secondary" onClick={prevStep} fullWidth /></div>
-            <div className='w-full max-w-xs'><Button label="Next" variant="primary" onClick={nextStep} fullWidth /></div>
+            <div className='w-full max-w-xs'><Button label="Next" variant={isStep4Incomplete ? "disabled" : "primary"} onClick={handleNextStep} fullWidth disabled={isStep4Incomplete} /></div>
           </div>
         </div>
       )
       break
     case 5:
-      (
-        <Confirmation />
-      )
+      return <Confirmation formData={formData} />
   }
 
   return (
