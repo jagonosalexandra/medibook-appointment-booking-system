@@ -7,6 +7,7 @@ import doctorRouter from "./routes/doctorRoute.js";
 import timeslotRouter from "./routes/timeslotRoute.js";
 import appointmentRouter from "./routes/appointmentRoute.js";
 import authRouter from "./routes/authRoutes.js";
+import adminRouter from "./routes/adminRoutes.js";
 
 // app config
 const app = express()
@@ -23,6 +24,7 @@ app.use('/api/', doctorRouter)
 app.use('/api/', timeslotRouter)
 app.use('/api/appointments', appointmentRouter)
 app.use('/api/auth', authRouter)
+app.use('/api/admin', adminRouter)
 
 app.get('/', (req, res) => {
     res.send('API WORKING')
