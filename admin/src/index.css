@@ -43,6 +43,10 @@
   --text-md: var(--text-md);
 }
 
+*::-webkit-scrollbar {
+  display: none;
+}
+
 body {
   font-family: 'Nunito', sans-serif;
   color: var(--color-text-primary);

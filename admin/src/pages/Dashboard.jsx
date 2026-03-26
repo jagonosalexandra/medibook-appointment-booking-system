@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { getAToken, getDashData } from '../services/adminService'
+import { fetchAllDoctors } from '../services/doctorService'
 import StatsCard from '../components/StatsCard'
 import calendarCheck from '../assets/icons/calendar-check.svg'
 import pending from '../assets/icons/pending.svg'
@@ -8,6 +9,7 @@ import users from '../assets/icons/users.svg'
 
 const Dashboard = () => {
   const [dashData, setDashData] = useState(null)
+  const [doctors, setDoctors] = useState([])
 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr)
@@ -27,6 +29,12 @@ const Dashboard = () => {
       }
     }
     loadData()
+  }, [])
+
+  useEffect(() => {
+    fetchAllDoctors().then(data => {
+      setDoctors(data);
+    })
   }, [])
 
   return (
@@ -62,7 +70,7 @@ const Dashboard = () => {
             />
           </div>
 
-          <div className='grid grid-cols-[3fr_1fr] my-8'>
+          <div className='grid grid-cols-[3fr_1fr] gap-8 my-8'>
             <div>
               <h2 className='flex items-center justify-between mb-2.5 text-lg font-semibold'>Latest Appointments <a className='text-sm text-primary-dark font-bold' href='#'>View All</a></h2>
 
@@ -95,6 +103,22 @@ const Dashboard = () => {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            <div className='bg-card rounded-xl h-135 overflow-auto px-3 py-2.5 shadow-lg'>
+              <h2 className='text-lg font-semibold border-b border-gray-200 pb-1.5 mb-2.5'>Doctors</h2>
+
+              <ul>
+                {doctors.map(doc => (
+                  <ol className='flex items-center gap-2.5 py-2'>
+                    <img className='w-12 h-12 rounded-full object-cover object-top' src={doc.photoUrl} alt={doc.name} />
+                    <p className='flex flex-col'>
+                      <span>{doc.name}</span>
+                      <span>{doc.department}</span>
+                    </p>
+                  </ol>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
