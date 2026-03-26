@@ -11,9 +11,9 @@
   --color-text-primary: #1A2B35;
   --color-text-secondary: #5A7080;
   --color-border: #D5E3EC;
-  --color-error: #DC2626;
+  --color-red: #DC2626;
   --color-success: #16A34A;
-  --color-warning: #D97706;
+  --color-yellow: #D97706;
 
   /* font size */
   --text-xl: 2.5rem;
@@ -32,7 +32,9 @@
   --color-text-secondary: var(--color-text-secondary);
   --color-card: var(--color-card);
   --color-border: var(--color-border);
-  --color-error: var(--color-error);
+  --color-red: var(--color-red);
+  --color-success: var(--color-success);
+  --color-yellow: var(--color-yellow);
 
   --fill-primary: var(--color-primary);
 
