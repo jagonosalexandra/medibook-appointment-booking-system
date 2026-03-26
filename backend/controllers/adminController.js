@@ -4,10 +4,11 @@ import appointmentModel from '../models/appointmentModel.js'
 // API to get dashboard data for admin panel
 export const adminDashboard = async (req, res) => {
     try {
-        const today = new Date().toISOString().split('T')[0]
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
 
-        const doctors = await doctorModel.find({})
-        const appointments = await appointmentModel.find({})
+        const endOfToday = new Date();
+        endOfToday.setHours(23, 59, 59, 999);
 
         const [
             doctorCount, 
@@ -18,8 +19,8 @@ export const adminDashboard = async (req, res) => {
         ] = await Promise.all([
             doctorModel.countDocuments({}),
             appointmentModel.countDocuments({}),
-            appointmentModel.countDocuments({ date: today }),
-            appointmentModel.countDocuments({ status: 'pending '}),
+            appointmentModel.countDocuments({ createdAt: { $gte: startOfToday, $lte: endOfToday } }),
+            appointmentModel.countDocuments({ status: 'pending'}),
             appointmentModel.find({}).sort({ createdAt: -1 }).limit(10)
         ])
 
