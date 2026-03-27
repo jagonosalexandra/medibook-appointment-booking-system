@@ -2,6 +2,8 @@ import appointmentModel from "../models/appointmentModel.js";
 import timeslotModel from "../models/timeslotModel.js"
 import { generateReference } from "../utils/generateReference.js";
 
+
+// API for creating appointment
 const createAppointment = async (req, res) => {
     try {
         const referenceNumber = await generateReference()
@@ -37,7 +39,20 @@ const createAppointment = async (req, res) => {
     }
 }
 
-export const updateAppointment = async (req, res) => {
+// API for getting appointments 
+const appointments = async (req, res) => {
+    try {
+        const appointments = await appointmentModel.find({}).sort({ createdAt: -1 })
+
+        res.json({ success: true, appointments, message: "Fetch appointments!" })
+    } catch (error) {
+        console.error(error)
+        res.json({ success: false, message: error.message })
+    }
+}
+
+// API for admin appointment update
+const updateAppointment = async (req, res) => {
     try {
         const { id } = req.params
         const { status, adminNotes } = req.body
@@ -83,4 +98,8 @@ export const updateAppointment = async (req, res) => {
     }
 }
 
-export { createAppointment }
+export { 
+    createAppointment,
+    appointments,
+    updateAppointment
+ }
