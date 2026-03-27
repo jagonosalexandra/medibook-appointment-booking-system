@@ -21,7 +21,7 @@ export const adminDashboard = async (req, res) => {
             appointmentModel.countDocuments({}),
             appointmentModel.countDocuments({ createdAt: { $gte: startOfToday, $lte: endOfToday } }),
             appointmentModel.countDocuments({ status: 'pending'}),
-            appointmentModel.find({}).sort({ createdAt: -1 }).limit(10)
+            appointmentModel.find({}).sort({ createdAt: -1 }).limit(5)
         ])
 
         const dashData = {
