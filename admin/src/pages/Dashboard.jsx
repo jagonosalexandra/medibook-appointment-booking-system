@@ -6,19 +6,11 @@ import calendarCheck from '../assets/icons/calendar-check.svg'
 import pending from '../assets/icons/pending.svg'
 import today from '../assets/icons/today.svg'
 import users from '../assets/icons/users.svg'
+import AppointmentTable from '../components/AppointmentTable'
 
 const Dashboard = () => {
   const [dashData, setDashData] = useState(null)
   const [doctors, setDoctors] = useState([])
-
-  const formatDate = (dateStr) => {
-    const date = new Date(dateStr)
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    })
-  }
 
   useEffect(() => {
     const loadData = async () => {
@@ -38,7 +30,7 @@ const Dashboard = () => {
   }, [])
 
   return (
-    <div className='flex flex-col gap-8 px-12 py-8'>
+    <div className='w-full flex flex-col gap-8 px-12 py-8 h-screen overflow-y-auto'>
       <h1 className='text-4xl font-bold'>Dashboard</h1>
 
       {dashData ? (
@@ -71,41 +63,13 @@ const Dashboard = () => {
           </div>
 
           <div className='grid grid-cols-[3fr_1fr] gap-8 my-8'>
-            <div>
+            <div className='min-w-0'>
               <h2 className='flex items-center justify-between mb-2.5 text-lg font-semibold'>Latest Appointments <a className='text-sm text-primary-dark font-bold' href='#'>View All</a></h2>
 
-              <table className='w-full bg-card rounded-xl shadow-lg overflow-hidden'>
-                <thead className='bg-gray-50/50 tracking-wider uppercase text-sm text-gray-500 text-center border-b border-gray-200'>
-                  <th className='pt-3.5 pb-2.5'>Patient Name</th>
-                  <th className='pt-3.5 pb-2.5'>Doctor</th>
-                  <th className='pt-3.5 pb-2.5'>Date</th>
-                  <th className='pt-3.5 pb-2.5'>Time</th>
-                  <th className='pt-3.5 pb-2.5'>Department</th>
-                  <th className='pt-3.5 pb-2.5'>Status</th>
-                </thead>
-                <tbody className='divide-y divide-gray-50'>
-                  {dashData.latestAppointments.map(app => (
-                    <tr className='text-center' key={app._id}>
-                      <td className='py-2.5 font-semibold'>{app.name}</td>
-                      <td className='py-2.5'>{app.doctor}</td>
-                      <td className='py-2.5'>{formatDate(app.date)}</td>
-                      <td className='py-2.5'>{app.time}</td>
-                      <td className='py-2.5'>{app.department}</td>
-                      <td className='text-sm '>
-                        <span
-                          className={`${app.status === 'pending' ? 'bg-yellow/30 text-yellow font-bold' : ''}
-                                    ${app.status === 'cancelled' ? 'bg-red/30 text-red font-bold' : ''}
-                                    ${app.status === 'confirmed' ? 'bg-success/30 text-success font-bold' : ''}
-                                    px-5 py-1 uppercase rounded-full`}
-                        >{app.status}</span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <AppointmentTable appointments={dashData.latestAppointments} />
             </div>
 
-            <div className='bg-card rounded-xl h-135 overflow-auto px-3 py-2.5 shadow-lg'>
+            <div className='bg-card rounded-xl h-110 overflow-auto px-3 py-2.5 shadow-lg'>
               <h2 className='text-lg font-semibold border-b border-gray-200 pb-1.5 mb-2.5'>Doctors</h2>
 
               <ul>
@@ -113,8 +77,8 @@ const Dashboard = () => {
                   <ol className='flex items-center gap-2.5 py-2'>
                     <img className='w-12 h-12 rounded-full object-cover object-top' src={doc.photoUrl} alt={doc.name} />
                     <p className='flex flex-col'>
-                      <span>{doc.name}</span>
-                      <span>{doc.department}</span>
+                      <span className='font-medium'>{doc.name}</span>
+                      <span className='bg-primary/15 px-2.5 py-0.5 w-fit rounded-full text-xs text-gray-600 font-bold uppercase'>{doc.department}</span>
                     </p>
                   </ol>
                 ))}
