@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { getAToken, getDashData } from '../services/adminService'
 import { fetchAllDoctors } from '../services/doctorService'
 import StatsCard from '../components/StatsCard'
@@ -64,7 +65,15 @@ const Dashboard = () => {
 
           <div className='grid grid-cols-[3fr_1fr] gap-8 my-8'>
             <div className='min-w-0'>
-              <h2 className='flex items-center justify-between mb-2.5 text-lg font-semibold'>Latest Appointments <a className='text-sm text-primary-dark font-bold' href='#'>View All</a></h2>
+              <h2 className='flex items-center justify-between mb-2.5 text-lg font-semibold'>
+                Latest Appointments
+                <Link
+                  to='/appointments'
+                  className='text-sm text-primary-dark font-bold hover:underline cursor-pointer'
+                >
+                  View All
+                </Link>
+              </h2>
 
               <AppointmentTable appointments={dashData.latestAppointments} />
             </div>
