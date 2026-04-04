@@ -62,13 +62,14 @@ const updateAppointment = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Appointment not found' })
         }
 
+        const current = existing.status;
         const updated = await appointmentModel.findByIdAndUpdate(
             id,
             { status, adminNotes },
             { new: true }
         )
 
-        if (status === 'cancelled') {
+        if (current === 'cancelled' && status === 'cancelled') {
             await timeslotModel.findOneAndUpdate(
                 {
                     docId: existing.docId,
@@ -79,7 +80,7 @@ const updateAppointment = async (req, res) => {
             )
         }
 
-        if (existing.status === 'cancelled' && status !== 'cancelled') {
+        if (current === 'cancelled' && status !== 'cancelled') {
             await timeslotModel.findOneAndUpdate(
                 {
                     docId: existing.docId,
@@ -90,7 +91,7 @@ const updateAppointment = async (req, res) => {
             )
         }
 
-        res.status(200).json({ success: true, data: updated })
+        res.status(200).json({ success: true, data: updated, message: `Appointment updted to ${status}` })
 
     } catch (error) {
         console.error('Error updating appointment:', error)

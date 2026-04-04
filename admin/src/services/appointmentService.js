@@ -8,3 +8,13 @@ export const fetchAppointments = async () => {
         console.error(error)
     }
 }
+
+export const updateAppointment = async (appId, updateData) => {
+    try {
+        const response = await api.put(`/api/admin/update-appointment/${appId}`, updateData)
+        return response.data
+    } catch (error) {
+        console.error("Error, updating appointment: ", error)
+        throw error
+    }
+}
