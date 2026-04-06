@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import Button from '../components/Button'
 import InputField from '../components/InputField'
 import { adminLogin } from '../services/authService'
@@ -9,18 +10,17 @@ const Login = () => {
 
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
-    const [error, setError] = useState('')
 
     const onSubmitHandler = async (event) => {
         event.preventDefault()
 
         try {
-            console.log(username, password)
             await adminLogin(username, password)
+            toast.success("Login successful!")
             navigate('/')
         } catch (error) {
+            toast.error(error.message || "Login failed")
             console.error(error)
-            setError(error.message)
         }
     }
 
@@ -45,10 +45,6 @@ const Login = () => {
                         required
                     />
                 </div>
-
-                {error && (
-                    <p className='text-error text-sm text-center w-full -mt-4'>{error}</p>
-                )}
 
                 <Button
                     label='Login'

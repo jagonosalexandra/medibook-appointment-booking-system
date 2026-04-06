@@ -16,12 +16,15 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('adminToken')
-      window.location.href = '/login' 
+    const isLoginPage = window.location.pathname === '/login';
+
+    if (error.response?.status === 401 && !isLoginPage) { 
+      localStorage.removeItem('adminToken');
+      window.location.href = '/login';
     }
-    return Promise.reject(error)
+    
+    return Promise.reject(error);
   }
-)
+);
 
 export default api
