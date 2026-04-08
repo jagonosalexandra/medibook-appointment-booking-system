@@ -47,10 +47,8 @@ const Appointments = () => {
   return (
     <div className='w-full px-12 py-8 h-screen overflow-y-auto bg-gray-50/50'>
       <div className='mb-8 flex justify-between items-end'>
-        <div>
-          <h1 className='text-4xl font-black'>Appointments</h1>
-          <p className='text-sm text-gray-400'>Manage and track all scheduled medical visits</p>
-        </div>
+        <h1 className='text-4xl font-black'>Appointments</h1>
+        <p className='text-sm text-gray-400'>Manage and track all scheduled medical visits</p>
       </div>
 
       <div className='bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex items-center gap-6 mb-6'>
