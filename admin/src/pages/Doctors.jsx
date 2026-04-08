@@ -61,7 +61,7 @@ const Doctors = () => {
         <Button
           label='+ Add New Doctor'
           variant='primary'
-          onClick={() => navigate('/doctors/add')}
+          onClick={() => navigate('/doctor/new')}
         />
       </div>
 
@@ -94,9 +94,9 @@ const Doctors = () => {
                 <span>{deptFilter}</span>
                 <img src={down_arrow} className='w-3 opacity-50' alt='' />
               </ListboxButton>
-              <ListboxOptions className='absolute z-20 mt-1 w-full max-h-60 overflow-auto bg-white border border-gray-200 rounded-lg shadow-xl py-1 text-sm outline-none'>
+              <ListboxOptions className='absolute z-20 mt-1 w-full max-h-60 overflow-auto bg-white border border-border rounded-lg shadow-xl py-1 text-sm outline-none'>
                 {["All Departments", "General Practice", "Pediatrics", "Cardiology", "Obstetrics & Gynecology", "Neurology", "Orthopedics"].map((dept) => (
-                  <ListboxOption key={dept} value={dept} className='px-4 py-2 hover:bg-primary/10 cursor-pointer text-gray-700'>
+                  <ListboxOption key={dept} value={dept} className='px-4 py-2 hover:bg-primary/5 cursor-pointer text-gray-700'>
                     {dept}
                   </ListboxOption>
                 ))}
@@ -136,7 +136,7 @@ const Doctors = () => {
                         <span className='font-bold text-gray-800'>{doc.name}</span>
                       </div>
                     </td>
-                    <td className='px-6 py-4'>
+                    <td className='px-6 py-4 whitespace-nowrap'>
                       <span className='text-xs text-primary-dark bg-primary/10 px-3 py-1 rounded-full font-bold uppercase'>
                         {doc.department}
                       </span>
@@ -157,21 +157,19 @@ const Doctors = () => {
                         </span>
                       </div>
                     </td>
-                    <td className='px-6 py-4'>
-                      <div className='flex flex-col gap-1 items-center'>
-                        <Button
-                          label='Edit Profile'
-                          variant='primary'
-                          onClick={() => navigate(`/doctor/${doc._id}`)}
-                          fullWidth
-                        />
-                        <Button
-                          label='Set Schedule'
-                          variant='muted' 
-                          onClick={() => navigate(`/doctors/schedule/${doc._id}`)}
-                          fullWidth
-                        />
-                      </div>
+                    <td className='flex flex-col gap-2 align-middle px-6 py-4'>
+                      <Button
+                        label='See Profile'
+                        variant='primary'
+                        onClick={() => navigate(`/doctor/${doc._id}`)}
+                        fullWidth
+                      />
+                      <Button
+                        label='Set Schedule'
+                        variant='muted'
+                        onClick={() => navigate(`/doctors/schedule/${doc._id}`)}
+                        fullWidth
+                      />
                     </td>
                   </tr>
                 ))}
@@ -198,13 +196,13 @@ const Doctors = () => {
 
           <div className='flex gap-4 items-center mb-6'>
             <Button
-              label="Previous"
+              label="<"
               variant={currentPage === 1 ? "disabled" : "secondary"}
               disabled={currentPage === 1}
               onClick={() => setCurrentPage(p => p - 1)}
             />
             <Button
-              label="Next"
+              label=">"
               variant={(currentPage === totalPages || filteredDoctors.length === 0) ? "disabled" : "primary"}
               disabled={currentPage === totalPages || filteredDoctors.length === 0}
               onClick={() => setCurrentPage(p => p + 1)}
