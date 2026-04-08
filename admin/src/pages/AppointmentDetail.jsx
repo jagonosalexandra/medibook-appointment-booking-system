@@ -71,7 +71,6 @@ const AppointmentDetail = () => {
 
     return appInfo && (
         <div className='w-full flex flex-col gap-8 h-screen overflow-y-auto'>
-            {/* TOP HEADER */}
             <div className='flex justify-between items-start px-12 py-4 bg-card border-b border-gray-300'>
                 <h1 className='text-xs uppercase font-medium text-gray-500'>
                     Appointment Details
@@ -93,7 +92,6 @@ const AppointmentDetail = () => {
                 </button>
             </div>
 
-            {/* MAIN CONTENT AREA */}
             <div className={`px-12 py-4 gap-8 ${appInfo.adminNotes ? 'grid grid-cols-[3fr_1fr]' : 'flex flex-col'}`}>
 
                 <div className='flex flex-col gap-8'>
@@ -139,7 +137,6 @@ const AppointmentDetail = () => {
                     </div>
                 </div>
 
-                {/* ADMIN NOTES COLUMN */}
                 {appInfo.adminNotes && (
                     <div className='flex flex-col gap-8'>
                         <div className='flex flex-col bg-card border border-gray-100 rounded-lg shadow-lg'>
@@ -154,7 +151,6 @@ const AppointmentDetail = () => {
                 )}
             </div>
 
-            {/* QUICK ACTIONS - NOW AT THE BOTTOM */}
             <div className='flex gap-4 items-end ml-auto px-12 py-1.5'>
                 <button
                     onClick={() => { setSelectStatus('confirmed'); setShowModal(true); }}
