@@ -1,35 +1,35 @@
 import appointmentModel from "../models/appointmentModel.js";
 import timeslotModel from "../models/timeslotModel.js"
+import doctorModel from "../models/doctorModel.js";
 import { generateReference } from "../utils/generateReference.js";
 
 
 // API for creating appointment
 const createAppointment = async (req, res) => {
     try {
-        const referenceNumber = await generateReference()
+        const { docId, date, time } = req.body
+        if (!docId) return res.status(400).json({ success: false, message: "Missing details" })
+        
+        const doctor = await doctorModel.findById(docId)
+        if (!doctor) return res.status(404).json({ success: false, message: "Doctor not found" })
 
+        const slot = await timeslotModel.findOneAndUpdate(
+            { docId, date, time, isAvailable: true },
+            { isAvailable: false },
+            { new: true }   
+        )
+        if (!slot) return res.status(409).json({success: false, message: "This slot is no longer available. Please choose another slot."})
+        
+        const referenceNumber = await generateReference()
+        
         const appointment = await appointmentModel.create({
             ...req.body,
+            doctor: doctor.name,
+            department: doctor.department,
+            fee: doctor.fee,
             referenceNumber,
             status: 'pending'
         })
-
-        const updateSlot = await timeslotModel.findOneAndUpdate(
-            {
-                docId: req.body.docId,
-                date: req.body.date,
-                time: req.body.time,
-            },
-            { isAvailable: false },
-            { new: true }
-        )
-
-        if (!updateSlot) {
-            console.warn(
-                `No slot found to mark unavailable — docId: ${req.body.docId}, ` +
-                `date: ${req.body.date}, time: ${req.body.time}`
-            )
-        }
 
         res.status(201).json({ success: true, data: appointment, message: "Appointment created!" })
 
@@ -69,7 +69,7 @@ const updateAppointment = async (req, res) => {
             { new: true }
         )
 
-        if (current === 'cancelled' && status === 'cancelled') {
+        if (current !== 'cancelled' && status === 'cancelled') {
             await timeslotModel.findOneAndUpdate(
                 {
                     docId: existing.docId,
@@ -91,7 +91,7 @@ const updateAppointment = async (req, res) => {
             )
         }
 
-        res.status(200).json({ success: true, data: updated, message: `Appointment updted to ${status}` })
+        res.status(200).json({ success: true, data: updated, message: `Appointment updated to ${status}` })
 
     } catch (error) {
         console.error('Error updating appointment:', error)
