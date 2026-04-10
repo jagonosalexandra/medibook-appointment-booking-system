@@ -11,7 +11,6 @@ const doctorSchema = new mongoose.Schema({
     specialties: { type: [String], required: true },
     experience: { type: String, required: true },
     isActive: { type: Boolean, default: true },
-    isAvailable: { type: Boolean, default: true },
     fee: { type: Number, required: true }
 }, { minimize: false, timestamps: true })
 
