@@ -1,8 +1,8 @@
 import express from "express";
-import { doctors } from "../controllers/doctorController.js";
+import { getDoctors } from "../controllers/doctorController.js";
 
 const doctorRouter = express.Router()
 
-doctorRouter.get('/doctors', doctors)
+doctorRouter.get('/', getDoctors)
 
 export default doctorRouter
