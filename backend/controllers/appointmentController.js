@@ -9,19 +9,19 @@ const createAppointment = async (req, res) => {
     try {
         const { docId, date, time } = req.body
         if (!docId) return res.status(400).json({ success: false, message: "Missing details" })
-        
+
         const doctor = await doctorModel.findById(docId)
         if (!doctor) return res.status(404).json({ success: false, message: "Doctor not found" })
 
         const slot = await timeslotModel.findOneAndUpdate(
             { docId, date, time, isAvailable: true },
             { isAvailable: false },
-            { new: true }   
+            { new: true }
         )
-        if (!slot) return res.status(409).json({success: false, message: "This slot is no longer available. Please choose another slot."})
-        
+        if (!slot) return res.status(409).json({ success: false, message: "This slot is no longer available. Please choose another slot." })
+
         const referenceNumber = await generateReference()
-        
+
         const appointment = await appointmentModel.create({
             ...req.body,
             doctor: doctor.name,
@@ -40,7 +40,7 @@ const createAppointment = async (req, res) => {
 }
 
 // API for getting appointments 
-const appointments = async (req, res) => {
+const getAppointments = async (req, res) => {
     try {
         const appointments = await appointmentModel.find({}).sort({ createdAt: -1 })
 
@@ -48,6 +48,21 @@ const appointments = async (req, res) => {
     } catch (error) {
         console.error(error)
         res.json({ success: false, message: error.message })
+    }
+}
+
+// API for getting appointment by ID
+const getAppointmentById = async (req, res) => {
+    try {
+        const { id } = req.params
+        const appointment = await appointmentModel.findById(id)
+
+        if (!appointment) return res.status(404).json({ success: false, message: "Appointment not found" })
+
+        res.status(200).json({ success: true, appointment })
+    } catch (error) {
+        console.error('Error fetching appointment: ', error)
+        res.status(500).json({ success: false, message: error.messsage })
     }
 }
 
@@ -99,8 +114,9 @@ const updateAppointment = async (req, res) => {
     }
 }
 
-export { 
+export {
     createAppointment,
-    appointments,
+    getAppointments,
+    getAppointmentById,
     updateAppointment
- }
+}

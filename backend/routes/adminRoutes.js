@@ -11,7 +11,8 @@ import {
 } from '../controllers/adminController.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
 import {
-    appointments,
+    getAppointments,
+    getAppointmentById,
     updateAppointment,
 } from '../controllers/appointmentController.js'
 import upload from '../middlewares/multer.js'
@@ -19,7 +20,8 @@ import upload from '../middlewares/multer.js'
 const adminRouter = express.Router()
 
 adminRouter.get('/dashboard', authMiddleware, adminDashboard)
-adminRouter.get('/appointments', authMiddleware, appointments)
+adminRouter.get('/appointments', authMiddleware, getAppointments)
+adminRouter.get('/appointment/:id', authMiddleware, getAppointmentById)
 adminRouter.put('/update-appointment/:id', authMiddleware, updateAppointment)
 adminRouter.post('/add-doctor', authMiddleware, upload.single("image"), addDoctor)
 adminRouter.put('/update-doctor/:id', authMiddleware, upload.single("image"), updateDoctor)
