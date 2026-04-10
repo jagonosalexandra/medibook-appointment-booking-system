@@ -17,11 +17,16 @@ connectCloudinary()
 
 // middlewares
 app.use(express.json())
-app.use(cors())
+app.use(cors({
+    origin: [
+        'http://localhost:5173', // user-side
+        'http://localhost:5174', // admin
+    ]
+}))
 
 // api endpoint
-app.use('/api/', doctorRouter)
-app.use('/api/', timeslotRouter)
+app.use('/api/doctors', doctorRouter)
+app.use('/api/timeslots', timeslotRouter)
 app.use('/api/appointments', appointmentRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/admin', adminRouter)
@@ -31,3 +36,9 @@ app.get('/', (req, res) => {
 })
 
 app.listen(port, () => console.log("Server started", port))
+
+
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ message: 'An unexpected error occurred' });
+})
