@@ -1,15 +1,15 @@
 import doctorModel from "../models/doctorModel.js";
 
 // API for getting doctor
-const doctors = async (req, res) => {
+const getDoctors = async (req, res) => {
     try {
-        const doctors = await doctorModel.find({})
+        const doctors = await doctorModel.find({ isActive: true })
 
-        res.json({ success: true, doctors: doctors, message: "Fetch doctor!" })
+        res.status(200).json({ success: true, doctors: doctors, message: "Fetch doctor!" })
     } catch (error) {
         console.error(error)
-        res.json({ success: false, message: error.message })
+        res.status(500).json({ success: false, message: error.message })
     }
 }
 
-export { doctors }
+export { getDoctors }

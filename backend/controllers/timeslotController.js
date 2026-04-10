@@ -13,7 +13,7 @@ const timeslots = async (req, res) => {
 
         res.status(200).json({ success: true, slots, message: "Fetch slots!"});
     } catch (error) {
-        res.status(500).json({ success: false, message: "Error fetching time slots", error });
+        res.status(500).json({ success: false, message: "Error fetching time slots" });
     }
 }
 
