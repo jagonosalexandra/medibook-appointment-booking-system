@@ -11,10 +11,7 @@ export const adminLogin = async (username, password) => {
   }
 }
 
-export const adminLogout = () => {
-  localStorage.removeItem('adminToken')
-  localStorage.removeItem('adminInfo')
-}
+export const adminLogout = () => localStorage.removeItem('adminToken')
 
 export const getToken = () => localStorage.getItem('adminToken')
 
