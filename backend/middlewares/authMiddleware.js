@@ -11,7 +11,7 @@ const authMiddleware = async (req, res, next) => {
         req.admin = decoded
         next()
     } catch (error) {
-        return res.status(400).json({ success: false, message: "Invaid token" })
+        return res.status(401).json({ success: false, message: "Invalid token" })
     }
 }
 
