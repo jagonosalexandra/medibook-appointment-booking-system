@@ -6,6 +6,7 @@ export const fetchAppointments = async () => {
         return response.data.appointments
     } catch (error) {
         console.error(error)
+        throw error
     }
 }
 
