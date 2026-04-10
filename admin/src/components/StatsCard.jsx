@@ -2,8 +2,8 @@ import React from 'react'
 
 const StatsCard = ({ name, count, icon, color }) => {
   return (
-    <div className='flex flex-col gap-4 w-70 p-4 relative bg-card border border-gray-200 rounded-xl shadow-lg'>
-        <p className='text-sm text-gray-600'>{name}</p>
+    <div className='flex flex-col gap-4 p-4 relative bg-card border border-gray-200 rounded-xl shadow-lg'>
+        <p className='w-25 sm:w-full text-sm text-gray-600'>{name}</p>
         <p className='text-4xl font-bold'>{count}</p>
         <img 
             className='w-12 p-1.5 rounded-xl absolute top-3.5 right-3.5' 
