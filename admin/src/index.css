@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
 @import "tailwindcss";
 
-:root {
+@theme {
   /* colors */
   --color-primary: #0D6E8A;
   --color-primary-dark: #094F65;
@@ -21,26 +21,6 @@
   --text-md: 1.125rem;
   --text-base: 1rem;
   --text-sm: 0.875rem;
-}
-
-@theme {
-  --color-primary: var(--color-primary);
-  --color-primary-dark: var(--color-primary-dark);
-  --color-secondary: var(--color-secondary);
-  --color-background: var(--color-background);
-  --color-text-primary: var( --color-text-primary);
-  --color-text-secondary: var(--color-text-secondary);
-  --color-card: var(--color-card);
-  --color-border: var(--color-border);
-  --color-red: var(--color-red);
-  --color-success: var(--color-success);
-  --color-yellow: var(--color-yellow);
-
-  --fill-primary: var(--color-primary);
-
-  --text-lg: var(--text-lg);
-  --text-sm: var(--text-sm);
-  --text-md: var(--text-md);
 }
 
 *::-webkit-scrollbar {
