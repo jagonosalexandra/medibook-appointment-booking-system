@@ -6,9 +6,9 @@ const appointmentSchema = new mongoose.Schema({
     phone: { type: String, required: true },
     email: { type: String, required: true },
     docId: { type: mongoose.Schema.Types.ObjectId, ref: 'Doctor', required: true },
-    doctor: { type: String, required: true },
+    doctor: { type: String, required: true }, // flag
     department: { type: String, required: true },
-    date: { type: String, required: true },  
+    date: { type: Date, required: true },  
     time: { type: String, required: true },
     appointmentType: { type: String, required: true },
     fee: { type: Number, required: true },
