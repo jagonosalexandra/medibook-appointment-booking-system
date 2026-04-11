@@ -45,12 +45,6 @@ const Appointments = () => {
   const currentItems = filteredAppointments.slice(indexOfFirstItem, indexOfLastItem)
   const totalPages = Math.max(1, Math.ceil(filteredAppointments.length / itemsPerPage))
 
-  const resetFilters = () => {
-    setStatusFilter("All Statuses")
-    setDeptFilter("All Departments")
-    setCurrentPage(1)
-  }
-
   if (loading) return <LoadingSpinner message="Loading appointments..." />
   if (error) return <p className="text-red">{error}</p>
 
@@ -81,7 +75,7 @@ const Appointments = () => {
           </div>
         </div>
 
-        <button onClick={resetFilters} className='ml-auto text-sm font-bold text-primary hover:underline lg:ml-auto'>
+        <button onClick={() => { setStatusFilter("All Statuses"); setDeptFilter("All Departments") }} className='ml-auto text-sm font-bold text-primary hover:underline lg:ml-auto'>
           Clear all filters
         </button>
       </div>
