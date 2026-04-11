@@ -9,6 +9,7 @@ import calendarCheck from '../assets/icons/calendar-check.svg'
 import pending from '../assets/icons/pending.svg'
 import today from '../assets/icons/today.svg'
 import users from '../assets/icons/users.svg'
+import { toast } from 'react-toastify'
 
 const Dashboard = () => {
   const [dashData, setDashData] = useState(null)
@@ -24,6 +25,7 @@ const Dashboard = () => {
         setDashData(data)
       } catch (error) {
         setError("Failed to load dashboard data")
+        toast.error("Failed to load appointments")
       } finally {
         setLoading(false)
       }
@@ -41,8 +43,8 @@ const Dashboard = () => {
   if (error) return <p className="text-red">{error}</p>
 
   return dashData && (
-    <div className='w-full flex flex-col gap-8 px-4 lg:px-12 py-8 h-screen overflow-y-auto'>
-      <h1 className='text-4xl font-black'>Dashboard</h1>
+    <div className='w-full flex flex-col gap-6 lg:gap-8 px-4 lg:px-12 py-6 lg:py-8 h-screen overflow-y-auto'>
+      <h1 className='text-3xl lg:text-4xl font-black'>Dashboard</h1>
 
       <div>
         <div className='grid grid-cols-2 xl:grid-cols-4 gap-4'>
