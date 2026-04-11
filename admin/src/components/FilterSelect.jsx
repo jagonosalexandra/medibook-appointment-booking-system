@@ -6,7 +6,7 @@ const FilterSelect = ({ value, onChange, options }) => {
   return (
     <Listbox value={value} onChange={onChange}>
         <div className='relative'>
-            <ListboxButton className='flex justify-between items-center w-full bg-gray-100 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 cursor-pointer'>
+            <ListboxButton className='flex justify-between items-center w-full border-b border-border px-4 py-2 text-sm font-medium text-gray-700 cursor-pointer'>
                 {value}
                 <img src={down_arrow} className='w-3 opacity-50' alt='' />
             </ListboxButton>
