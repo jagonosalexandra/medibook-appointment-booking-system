@@ -14,6 +14,20 @@ export const fetchAllDoctors = async () => {
     }
 }
 
+export const fetchDoctorById = async (docId) => {
+    try {
+        const response = await api.get(`/api/admin/doctor/${docId}`)
+        if (response.data.success) {
+            return response.data.doctor
+        } else {
+            throw new Error(response.data.message || "Failed to fetch doctor")
+        }
+    } catch (error) {
+        const message = error.response?.data?.message || error.message || "Server error"
+        throw new Error(message)
+    }
+}
+
 export const addDoctor = async (doctorData) => {
     try {
         const response = await api.post('/api/admin/add-doctor', doctorData)
