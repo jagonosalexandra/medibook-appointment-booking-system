@@ -1,21 +1,27 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { fetchAllDoctors, updateDoctor } from '../services/doctorService'
+import { fetchDoctorById, updateDoctor } from '../services/doctorService'
 import DoctorForm from '../components/DoctorForm'
+import LoadingSpinner from '../components/LoadingSpinner'
 
 const EditDoctorProfile = () => {
   const { docId } = useParams()
   const [docInfo, setDocInfo] = useState(null)
-  const [isEditing, setIsEditing] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     const loadDoc = async () => {
       try {
-        const doctors = await fetchAllDoctors()
-        const found = doctors.find(d => d._id === docId)
-        if (found) setDocInfo(found)
-      } catch (e) { toast.error('Error loading doctor') }
+        const doctor = await fetchDoctorById(docId)
+        setDocInfo(doctor)
+      } catch (error) {
+        setError('Failed to load doctor profile')
+        toast.error('Error loading doctor profile')
+      } finally {
+        setLoading(false)
+      }
     }
     loadDoc()
   }, [docId])
@@ -26,7 +32,7 @@ const EditDoctorProfile = () => {
       Object.keys(formData).forEach(key => {
         if (['address', 'specialties', 'certifications'].includes(key)) {
           finalData.append(key, JSON.stringify(formData[key]))
-        } else if (key !== 'photoUrl') { 
+        } else if (key !== 'photoUrl') {
           finalData.append(key, formData[key])
         }
       })
@@ -35,22 +41,23 @@ const EditDoctorProfile = () => {
       const response = await updateDoctor(docId, finalData)
       if (response.success) {
         toast.success('Profile updated!')
-        setIsEditing(false)
-        setDocInfo(formData)
+        const refreshed = await fetchDoctorById(docId)
+        setDocInfo(refreshed)
       }
-    } catch (e) { toast.error('Update failed') }
+    } catch (error) {
+      toast.error(error.message || 'Update failed')
+    }
   }
 
-  if (!docInfo) return <div className="p-10">Loading...</div>
+  if (loading) return <LoadingSpinner message='Loading doctor profile...' />
+  if (error) return <p className="text-center text-red mt-12">{error}</p>
+  if (!docInfo) return null
 
   return (
-    <DoctorForm 
-      initialData={docInfo} 
-      onSubmit={handleUpdate} 
-      isAddMode={false} 
-      isEditing={isEditing} 
-      setIsEditing={setIsEditing} 
-      onDiscard={() => setIsEditing(false)}
+    <DoctorForm
+      initialData={docInfo}
+      onSubmit={handleUpdate}
+      onDiscard={() => window.history.back()}
     />
   )
 }
