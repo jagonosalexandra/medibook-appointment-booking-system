@@ -5,6 +5,7 @@ import { toast } from 'react-toastify'
 import DoctorCard from '../components/DoctorCard'
 import FilterSelect from '../components/FilterSelect'
 import LoadingSpinner from '../components/LoadingSpinner'
+import { DEPARTMENT_FILTER, DOC_STATUS } from '../constants/constants'
 
 const Doctors = () => {
   const [doctors, setDoctors] = useState([])
@@ -68,14 +69,14 @@ const Doctors = () => {
             <FilterSelect
               value={statusFilter}
               onChange={setStatusFilter}
-              options={["All Statuses", "Active", "Inactive"]}
+              options={DOC_STATUS}
             />
           </div>
           <div className='w-full md:w-50'>
             <FilterSelect
               value={deptFilter}
               onChange={setDeptFilter}
-              options={["All Departments", "General Practice", "Pediatrics", "Cardiology", "Obstetrics & Gynecology", "Neurology", "Orthopedics"]}
+              options={DEPARTMENT_FILTER}
             />
           </div>
         </div>

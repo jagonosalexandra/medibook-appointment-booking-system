@@ -8,16 +8,7 @@ import doctorImgPlaceholder from '../assets/images/doctorImg_placeholder.png'
 import InputField from './InputField'
 import Button from './Button'
 import FilterSelect from './FilterSelect'
-
-const DEPARTMENTS = [
-    "Select Department",
-    "General Practice",
-    "Pediatrics",
-    "Cardiology",
-    "Obstetrics & Gynecology",
-    "Neurology",
-    "Orthopedics"
-]
+import { DEPARTMENTS } from '../constants/constants'
 
 const DoctorForm = ({ initialData, onSubmit, isAddMode = false, onDiscard }) => {
     const navigate = useNavigate()
@@ -125,24 +116,26 @@ const DoctorForm = ({ initialData, onSubmit, isAddMode = false, onDiscard }) => 
                                     <img src={edit} alt='Edit' className='w-5 lg:w-6 invert' />
                                 </div>
                             </div>
-                            {!isAddMode && <span className='px-4 py-1.5 bg-primary/10 text-primary-dark text-sm font-semibold rounded-full border border-primary/20'>{formData.department}</span>}
                         </div>
 
                         <div className='grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-4 flex-1'>
                             <InputField label='Full Name' value={formData.name} onChange={v => handleChange('name', v)} required />
-                            <InputField type='number' label='Years of Experience' value={formData.experience} onChange={v => handleChange('experience', v)} required />
-                            <InputField type='number' label='Consultation Fee ($)' type='number' value={formData.fee} onChange={v => handleChange('fee', Number(v))} required />
-
-                            {isAddMode && (
-                                <div className='flex w-full py-3.5 flex-col gap-0.5'>
-                                    <label className='font-medium'>Department</label>
+                            <div className='flex w-full py-3.5 flex-col gap-0.5'>
+                                <label className='font-medium'>Department</label>
+                                {isAddMode ? (
                                     <FilterSelect
                                         value={formData.department || "Select Department"}
                                         onChange={v => handleChange('department', v)}
                                         options={DEPARTMENTS}
                                     />
-                                </div>
-                            )}
+                                ) : (
+                                    <div>
+                                        <p className='outline-none border-b border-border px-1.5'>{formData.department}</p>
+                                    </div>
+                                )}
+                            </div>
+                            <InputField type='number' label='Years of Experience' value={formData.experience} onChange={v => handleChange('experience', v)} required />
+                            <InputField type='number' label='Consultation Fee ($)' value={formData.fee} onChange={v => handleChange('fee', Number(v))} required />
 
                             <div className='col-span-1 md:col-span-2'>
                                 <label className='font-medium block mb-0.5'>Address</label>
@@ -173,7 +166,7 @@ const DoctorForm = ({ initialData, onSubmit, isAddMode = false, onDiscard }) => 
                     </div>
                 </div>
 
-                <div className='flex flex-col sm:flex-row gap-3 sm:justify-end mt-4'>
+                <div className='flex flex-col-reverse sm:flex-row gap-3 sm:justify-end mt-4'>
                     {(!isAddMode) && (
                         <Button label='Discard Changes' variant='muted' onClick={onDiscard} />
                     )}

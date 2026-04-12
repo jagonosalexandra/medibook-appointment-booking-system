@@ -5,6 +5,7 @@ import LoadingSpinner from '../components/LoadingSpinner'
 import Button from '../components/Button'
 import FilterSelect from '../components/FilterSelect'
 import { toast } from 'react-toastify'
+import { APPOINTMENT_STATUS, DEPARTMENT_FILTER } from '../constants/constants'
 
 const Appointments = () => {
   const [loading, setLoading] = useState(true)
@@ -63,14 +64,14 @@ const Appointments = () => {
             <FilterSelect
               value={statusFilter}
               onChange={setStatusFilter}
-              options={["All Statuses", "Confirmed", "Cancelled", "Pending"]}
+              options={APPOINTMENT_STATUS}
             />
           </div>
           <div className='w-full md:w-50'>
             <FilterSelect
               value={deptFilter}
               onChange={setDeptFilter}
-              options={["All Departments", "General Practice", "Pediatrics", "Cardiology", "Obstetrics & Gynecology", "Neurology", "Orthopedics"]}
+              options={DEPARTMENT_FILTER}
             />
           </div>
         </div>
