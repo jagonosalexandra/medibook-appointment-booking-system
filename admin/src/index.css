@@ -32,3 +32,120 @@ body {
   color: var(--color-text-primary);
   background-color: var(--color-background);
 }
+
+.react-datepicker {
+  width: 100% !important;
+  font-family: 'Nunito', sans-serif !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.10) !important;
+  margin-top: 0.5rem !important;
+}
+.react-datepicker__header {
+  background-color: white !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  padding: 16px 0 0 !important;
+}
+.react-datepicker__current-month {
+  font-size: 0.9rem !important;
+  font-weight: 800 !important;
+  color: var(--color-primary-dark) !important;
+  margin-bottom: 10px !important;
+  letter-spacing: 0.01em !important;
+}
+.react-datepicker__navigation {
+  top: 14px !important;
+}
+.react-datepicker__navigation-icon::before {
+  border-color: var(--color-primary) !important;
+  border-width: 2px 2px 0 0 !important;
+  width: 7px !important;
+  height: 7px !important;
+}
+.react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
+  border-color: var(--color-primary-dark) !important;
+}
+.react-datepicker__day-name {
+  color: var(--color-primary) !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  font-size: 0.7rem !important;
+  width: 2.85rem !important;
+  line-height: 2.5rem !important;
+  margin: 0.1rem !important;
+}
+.react-datepicker__day {
+  color: var(--color-text-primary) !important;
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
+  width: 2.85rem !important;
+  line-height: 2.5rem !important;
+  margin: 0.1rem !important;
+  border-radius: 9999px !important;
+  transition: all 0.15s !important;
+}
+
+.react-datepicker__day:hover {
+  border-radius: 9999px !important;
+  background-color: var(--color-secondary) !important;
+  color: var(--color-primary) !important;
+}
+
+/* ── Today ─────────────────────────────────────────────────────── */
+.react-datepicker__day--today {
+  color: var(--color-primary) !important;
+  font-weight: 800 !important;
+  background-color: var(--color-secondary) !important;
+}
+
+/* ── Selected — after today so it wins the cascade ────────────── */
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: var(--color-primary) !important;
+  border-radius: 9999px !important;
+  color: white !important;
+  font-weight: 800 !important;
+}
+
+/* ✅ Today AND selected — white must win */
+.react-datepicker__day--selected.react-datepicker__day--today,
+.react-datepicker__day--keyboard-selected.react-datepicker__day--today {
+  background-color: var(--color-primary-dark) !important;
+  color: white !important;
+}
+
+.react-datepicker__day--selected:hover,
+.react-datepicker__day--keyboard-selected:hover {
+  background-color: var(--color-primary-dark) !important;
+  color: white !important;
+}
+
+/* ── Disabled days ─────────────────────────────────────────────── */
+.react-datepicker__day--disabled {
+  color: var(--color-border) !important;
+  cursor: not-allowed !important;
+  font-weight: 400 !important;
+}
+
+.react-datepicker__day--disabled:hover {
+  background-color: transparent !important;
+  color: var(--color-border) !important;
+}
+
+/* ── Outside-month days ────────────────────────────────────────── */
+.react-datepicker__day--outside-month {
+  color: var(--color-border) !important;
+  font-weight: 400 !important;
+}
+
+/* ── Month body padding ────────────────────────────────────────── */
+.react-datepicker__month {
+  padding: 8px 8px 12px !important;
+  margin: 0 !important;
+}
+
+/* ── Hide aria-live region ─────────────────────────────────────── */
+.react-datepicker__aria-live {
+  display: none !important;
+}

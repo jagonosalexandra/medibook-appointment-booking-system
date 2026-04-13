@@ -5,6 +5,7 @@ import { fetchAllDoctors } from '../services/doctorService'
 import { addDoctorSlots, getDoctorSlots, toggleSlot } from '../services/adminService'
 import LoadingSpinner from '../components/LoadingSpinner'
 import SectionCard from '../components/SectionCard'
+import DatePicker from '../components/DatePicker'
 import down_arrow from '../assets/icons/down_arrow.svg'
 import clock from '../assets/icons/clock.svg'
 import { DAYS_OF_WEEK, DAY_SHORT, TIME_OPTIONS, TABS, getTodayStr, getEndTime } from '../constants/constants'
@@ -55,13 +56,18 @@ const AddSlotsTab = ({ selectedDoctor }) => {
         <div className='flex flex-col gap-5'>
             <SectionCard title='Date Range' icon={clock}>
                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-5'>
-                    {[['Start Date', startDate, getTodayStr(), setStartDate], ['End Date', endDate, startDate, setEndDate]].map(([label, value, min, setter]) => (
-                        <div key={label} className='flex flex-col gap-1.5'>
-                            <label className='text-xs font-semibold text-gray-400 uppercase tracking-wider'>{label}</label>
-                            <input type='date' value={value} min={min} onChange={e => setter(e.target.value)}
-                                className='border border-border rounded-lg px-3 py-2.5 text-sm focus:outline-2 focus:outline-primary' />
-                        </div>
-                    ))}
+                    <DatePicker
+                        label='Start Date'
+                        value={startDate}
+                        minDate={getTodayStr()}
+                        onChange={setStartDate}
+                    />
+                    <DatePicker
+                        label='End Date'
+                        value={endDate}
+                        minDate={startDate}
+                        onChange={setEndDate}
+                    />
                 </div>
             </SectionCard>
 
@@ -192,7 +198,7 @@ const ManageSlotsTab = ({ slots, loadingSlots, onToggleSlot, togglingSlotId }) =
             {loadingSlots ? <LoadingSpinner message='Fetching schedule...' /> : (
                 <div className='grid grid-cols-1 w-full rounded-2xl shadow-lg bg-white border border-gray-200 overflow-hidden'>
                     <div className='overflow-x-auto'>
-                        <div className='min-w-174 w-full'>
+                        <div className='min-w-200 w-full'>
                             <div className='grid grid-cols-[repeat(7,1fr)] lg:grid-cols-[100px_repeat(7,1fr)] bg-gray-50 border-b border-gray-200 sticky top-0 z-10'>
                                 <div className='hidden lg:flex items-center justify-center border-r border-gray-200 bg-gray-100/50 py-4'>
                                     <img src={clock} className='w-4 opacity-25' alt='' />
