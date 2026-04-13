@@ -12,10 +12,12 @@ import AddDoctor from './pages/AddDoctor';
 import EditDoctorProfile from './pages/EditDoctorProfile';
 import TimeSlots from './pages/TimeSlots';
 import Navbar from './components/Navbar';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   return (
     <div className="bg-[#F8F9FD] min-h-screen">
+      <ScrollToTop />
       <ToastContainer />
       <Routes>
         <Route path='/login' element={<Login />} />
