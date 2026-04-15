@@ -54,6 +54,7 @@ const Doctors = () => {
         {filteredDocs.map(doc => (
           <DoctorCard
             key={doc._id}
+            id={doc._id}
             name={doc.name}
             photoUrl={doc.photoUrl}
             department={doc.department}

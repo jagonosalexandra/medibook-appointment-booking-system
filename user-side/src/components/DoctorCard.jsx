@@ -2,8 +2,11 @@ import React from 'react'
 import Button from './Button'
 import briefcase from '../assets/icons/briefcase.svg'
 import money from '../assets/icons/money.svg'
+import { useNavigate } from 'react-router-dom'
 
-const DoctorCard = ({ name, photoUrl, department, experience, fee, isBookingMode = false, isSelected = false }) => {
+const DoctorCard = ({ id, name, photoUrl, department, experience, fee, isBookingMode = false, isSelected = false }) => {
+  const navigate = useNavigate()
+
   return (
     <div className={`flex flex-col gap-3.5 pb-6 rounded-xl bg-card border-2 transition-all duration-300 shadow-lg overflow-hidden
       ${isBookingMode ? 'h-full' : 'hover:-translate-y-1.5'}
@@ -31,7 +34,7 @@ const DoctorCard = ({ name, photoUrl, department, experience, fee, isBookingMode
         
         {!isBookingMode && (
           <div className='flex items-center gap-4 px-4 mt-2'>
-              <Button label="Profile" variant="secondary" fullWidth />
+              <Button label="Profile" variant="secondary" onClick={() => navigate(`/doctor/${id}`)} fullWidth />
               <Button label="Book Now" variant="primary" fullWidth />
           </div>
         )}
