@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import LoadingSpinner from '../components/LoadingSpinner'
 import hero from '../assets/images/hero.jpg'
 import Button from '../components/Button'
 import checkup from '../assets/images/checkup.jpeg'
@@ -17,28 +18,39 @@ const Home = () => {
   const navigate = useNavigate()
 
   const [doctors, setDoctors] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    fetchAllDoctors().then(data => {
-      setDoctors(data)
-    })
+    const loadDoctors = async () => {
+      try {
+        const data = await fetchAllDoctors()
+        setDoctors(data)
+      } catch (error) {
+        setError(err.message || 'Failed to load doctors')
+        console.error('Error loading doctors:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadDoctors()
   }, [])
+
+  if (loading) return <LoadingSpinner message="Loading dashboard..." />
+  if (error) return <p className="text-red">{error}</p>
 
   return (
     <div>
       {/* HERO */}
-      <div className='relative w-full h-screen overflow-hidden'>
-        <img className='w-full h-screen object-cover' src={hero} alt='Hero' />
-        <div className='absolute inset-y-0 left-0 w-full md:w-2/3 lg:w-2/3 
-                  backdrop-blur-2xl bg-white/90
-                  mask-[linear-gradient(to_right,white_60%,transparent_100%)]'>
-        </div>
-        <div className='absolute inset-y-0 left-0 flex flex-col justify-center items-start gap-4 px-8 md:px-16 lg:px-24 z-10'>
-          <p className='text-6xl lg:text-8xl font-black leading-tight'>
-            Your Health, <span className='block text-primary-dark'>Simplified.</span>
-          </p>
-          <p className='max-w-md text-sm lg:text-base text-gray-700 mb-8'>
-            Expert care at your fingertips. Book your appointment with our world-class specialists today and experience seamless medical services tailored for you.
+      <div className='relative w-full h-[80vh] lg:h-screen overflow-hidden bg-black'>
+        <img className='w-full h-full object-cover object-top' src={hero} alt='Hero' />
+        <div className='absolute inset-0 bg-linear-to-t from-white via-white/90 to-transparent md:bg-linear-to-r md:from-white md:via-white/80 md:to-transparent z-10'></div>
+        <div className='absolute inset-0 flex flex-col justify-end md:justify-center items-start gap-3 md:gap-4 px-6 sm:px-8 md:px-12 lg:px-24 z-10 pb-12 md:pb-0 max-w-4xl'>
+          <h1 className='text-5xl md:text-6xl lg:text-8xl font-black leading-tight text-primary-dark'>
+            Your Health, <span className='block text-black'>Simplified.</span>
+          </h1>
+          <p className='max-w-xs lg:max-w-md text-sm md:text-base text-gray-800 mb-4 md:mb-8 font-medium'>
+            Expert care at your fingertips. Book your appointment with our world-class specialists today.
           </p>
 
           <Button
@@ -50,44 +62,44 @@ const Home = () => {
       </div>
 
       {/* SERVICES */}
-      <div className='px-24 py-16 bg-white'>
-        <p className='text-xl font-bold text-center mb-8'>Our Services</p>
-        <div className='grid grid-cols-2 gap-8'>
-          <div className='flex bg-card border border-border rounded-xl shadow-lg hover:border-2 hover:border-primary hover:scale-105 transition-all overflow-hidden'>
-            <img className='w-72 h-64 object-cover object-top' src={checkup} alt='General Checkup' />
+      <div className='px-6 lg:px-24 py-10 lg:py-12 bg-white'>
+        <p className='text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12'>Our Services</p>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8'>
+          <div className='flex flex-col lg:flex-row bg-card border border-border rounded-xl shadow-lg hover:border-2 hover:border-primary hover:scale-105 transition-all overflow-hidden group'>
+            <img className='w-full lg:w-72 h-48 lg:h-64 object-cover object-top' src={checkup} alt='General Checkup' />
             <div className='flex flex-col justify-center gap-4 p-4'>
               <p className='text-md font-bold text-primary-dark'>General Checkup</p>
-              <p className='w-xs text-sm text-gray-500'>A comprehensive wellness exam to monitor your overall health and provide preventive medical screening.</p>
+              <p className='w-full lg:w-xs text-sm text-gray-500'>A comprehensive wellness exam to monitor your overall health and provide preventive medical screening.</p>
             </div>
           </div>
-          <div className='flex bg-card border border-border rounded-xl shadow-lg hover:border-2 hover:border-primary hover:scale-105 transition-all overflow-hidden'>
-            <img className='w-72 h-64 object-cover object-top' src={followup} alt='Follow-Up' />
+          <div className='flex flex-col lg:flex-row bg-card border border-border rounded-xl shadow-lg hover:border-2 hover:border-primary hover:scale-105 transition-all overflow-hidden group'>
+            <img className='w-full lg:w-72 h-48 lg:h-64 object-cover object-top' src={followup} alt='Follow-Up' />
             <div className='flex flex-col justify-center gap-4 p-4'>
               <p className='text-md font-bold text-primary-dark'>Follow-Up</p>
-              <p className='w-xs text-sm text-gray-500'>A dedicated session to review previous test results, monitor progress, or adjust your ongoing treatment plan.</p>
+              <p className='w-full lg:w-xs text-sm text-gray-500'>A dedicated session to review previous test results, monitor progress, or adjust your ongoing treatment plan.</p>
             </div>
           </div>
-          <div className='flex bg-card border border-border rounded-xl shadow-lg hover:border-2 hover:border-primary hover:scale-105 transition-all overflow-hidden'>
-            <img className='w-72 h-64 object-cover object-top' src={patient} alt='New Patient' />
+          <div className='flex flex-col lg:flex-row bg-card border border-border rounded-xl shadow-lg hover:border-2 hover:border-primary hover:scale-105 transition-all overflow-hidden group'>
+            <img className='w-full lg:w-72 h-48 lg:h-64 object-cover object-top' src={patient} alt='New Patient' />
             <div className='flex flex-col justify-center gap-4 p-4'>
               <p className='text-md font-bold text-primary-dark'>New Patient</p>
-              <p className='w-xs text-sm text-gray-500'>An extended initial visit to establish your medical history and perform a baseline health assessment.</p>
+              <p className='w-full lg:w-xs text-sm text-gray-500'>An extended initial visit to establish your medical history and perform a baseline health assessment.</p>
             </div>
           </div>
-          <div className='flex bg-card border border-border rounded-xl shadow-lg hover:border-2 hover:border-primary hover:scale-105 transition-all overflow-hidden'>
-            <img className='w-72 h-64 object-cover object-top' src={specialist} alt='Specialist Visit' />
+          <div className='flex flex-col lg:flex-row bg-card border border-border rounded-xl shadow-lg hover:border-2 hover:border-primary hover:scale-105 transition-all overflow-hidden group'>
+            <img className='w-full lg:w-72 h-48 lg:h-64 object-cover object-top' src={specialist} alt='Specialist Visit' />
             <div className='flex flex-col justify-center gap-4 p-4'>
               <p className='text-md font-bold text-primary-dark'>Specialist Visit</p>
-              <p className='w-xs text-sm text-gray-500'>Expert consultation focused on specific medical concerns requiring targeted diagnostic insights and care.</p>
+              <p className='w-full lg:w-xs text-sm text-gray-500'>Expert consultation focused on specific medical concerns requiring targeted diagnostic insights and care.</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* DOCTORS */}
-      <div className='flex flex-col items-center gap-12 px-24 py-16'>
-        <p className='text-xl font-bold text-center'>Meet the Doctors</p>
-        <div className='grid grid-cols-4 gap-4'>
+      <div className='flex flex-col items-center gap-8 lg:gap-12 px-6 lg:px-24 py-10 lg:py-12'>
+        <p className='text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12'>Meet the Doctors</p>
+        <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4'>
           {doctors.slice(0, 4).map(doc => (
             <DoctorCard
               key={doc._id}
@@ -102,25 +114,25 @@ const Home = () => {
       </div>
 
       {/* WHY CHOOSE US */}
-      <div className='px-24 py-16 bg-white'>
-        <p className='text-xl font-bold text-center mb-12'>Why Choose Us</p>
-        <div className='grid grid-cols-4 gap-4 min-h-64'>
-          <div className='flex flex-col gap-4 bg-card p-4 border border-border hover:border-2 hover:border-primary hover:scale-105 transition-all rounded-xl shadow-lg'>
+      <div className='px-6 lg:px-24 py-10 lg:py-12 bg-white'>
+        <p className='text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12'>Why Choose Us</p>
+        <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 min-h-64'>
+          <div className='flex flex-col gap-4 bg-card p-4 border border-border hover:border-2 hover:border-primary hover:scale-105 transition-all rounded-xl shadow-lg group'>
             <img className='w-12 h-12 p-2 rounded-lg bg-primary/20' src={experts} alt='General Checkup' />
             <p className='text-md font-bold'>Expert Medical Team</p>
             <p className='text-sm text-gray-500'>Access a network of board-certified physicians and experienced healthcare professionals dedicated to providing personalized, high-quality medical care for every patient.</p>
           </div>
-          <div className='flex flex-col gap-4 bg-card p-4 border border-border hover:border-2 hover:border-primary hover:scale-105 transition-all rounded-xl shadow-lg'>
+          <div className='flex flex-col gap-4 bg-card p-4 border border-border hover:border-2 hover:border-primary hover:scale-105 transition-all rounded-xl shadow-lg group'>
             <img className='w-12 h-12 p-2 rounded-lg bg-primary/20' src={award} alt='Follow-Up' />
             <p className='text-md font-bold'>Accredited Excellence</p>
             <p className='text-sm text-gray-500'>We maintain the highest clinical standards as a Joint Commission-accredited facility, ensuring your care is safe, strictly regulated, and held to national benchmarks of excellence.</p>
           </div>
-          <div className='flex flex-col gap-4 bg-card p-4 border border-border hover:border-2 hover:border-primary hover:scale-105 transition-all rounded-xl shadow-lg'>
+          <div className='flex flex-col gap-4 bg-card p-4 border border-border hover:border-2 hover:border-primary hover:scale-105 transition-all rounded-xl shadow-lg group'>
             <img className='w-12 h-12 p-2 rounded-lg bg-primary/20' src={schedule} alt='New Patient' />
             <p className='text-md font-bold'>Seamless Scheduling</p>
             <p className='text-sm text-gray-500'>Skip the waiting room. Our real-time booking system allows you to secure appointment slots instantly, helping you manage your health around your busy schedule.</p>
           </div>
-          <div className='flex flex-col gap-4 bg-card p-4 border border-border hover:border-2 hover:border-primary hover:scale-105 transition-all rounded-xl shadow-lg'>
+          <div className='flex flex-col gap-4 bg-card p-4 border border-border hover:border-2 hover:border-primary hover:scale-105 transition-all rounded-xl shadow-lg group'>
             <img className='w-12 h-12 p-2 rounded-lg bg-primary/20' src={building} alt='Specialist Visit' />
             <p className='text-md font-bold'>Modern Facilities</p>
             <p className='text-sm text-gray-500'>Experience medical care in a clean, professional environment equipped with modern diagnostic tools and comfortable patient lounges designed for your peace of mind.</p>

@@ -9,10 +9,10 @@ const DoctorCard = ({ id, name, photoUrl, department, experience, fee, isBooking
 
   return (
     <div className={`flex flex-col gap-3.5 pb-6 rounded-xl bg-card border-2 transition-all duration-300 shadow-lg overflow-hidden
-      ${isBookingMode ? 'h-full' : 'hover:-translate-y-1.5'}
+      ${isBookingMode ? 'h-full cursor-pointer' : 'hover:-translate-y-1.5'}
       ${isSelected ? 'border-primary outline outline-primary' : 'border-gray-300'}
     `}>
-        <img className='w-full aspect-square object-cover object-top' src={photoUrl} alt={name} />
+        <img className='w-full aspect-square object-cover object-top' loading='lazy' src={photoUrl} alt={name} />
         
         <div className='px-4'>
             <h3 className='text-lg font-bold text-primary'>{name}</h3>
