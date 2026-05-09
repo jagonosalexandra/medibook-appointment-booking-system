@@ -3,22 +3,15 @@ import { useNavigate } from 'react-router-dom'
 import LoadingSpinner from '../components/LoadingSpinner'
 import hero from '../assets/images/hero.jpg'
 import Button from '../components/Button'
-import checkup from '../assets/images/checkup.jpeg'
-import followup from '../assets/images/followup.jpg'
-import patient from '../assets/images/patient.jpeg'
-import specialist from '../assets/images/specialist.jpg'
-import experts from '../assets/icons/general_practice.svg'
-import award from '../assets/icons/award.svg'
-import building from '../assets/icons/building.svg'
-import schedule from '../assets/icons/calendar-check.svg'
 import { fetchAllDoctors } from '../services/doctorService'
 import DoctorCard from '../components/DoctorCard'
+import SERVICES from '../constants/services'
+import WHY_US from '../constants/whyUs'
 
 const Home = () => {
   const navigate = useNavigate()
-
   const [doctors, setDoctors] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loadingDoctors, setLoadingDoctors] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
@@ -27,17 +20,14 @@ const Home = () => {
         const data = await fetchAllDoctors()
         setDoctors(data)
       } catch (error) {
-        setError(err.message || 'Failed to load doctors')
-        console.error('Error loading doctors:', err)
+        setError(error.message || 'Failed to load doctors')
+        console.error('Error loading doctors:', error)
       } finally {
-        setLoading(false)
+        setLoadingDoctors(false)
       }
     }
     loadDoctors()
   }, [])
-
-  if (loading) return <LoadingSpinner message="Loading dashboard..." />
-  if (error) return <p className="text-red">{error}</p>
 
   return (
     <div>
@@ -54,7 +44,7 @@ const Home = () => {
           </p>
 
           <Button
-            label={`Book appointment \u2192`}
+            label={`Book appointment →`}
             variant='primary'
             onClick={() => navigate('/booking')}
           />
@@ -62,81 +52,57 @@ const Home = () => {
       </div>
 
       {/* SERVICES */}
-      <div className='px-6 lg:px-24 py-10 lg:py-12 bg-white'>
+      <div className='px-6 lg:px-24 py-10 lg:py-16 bg-white'>
         <p className='text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12'>Our Services</p>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8'>
-          <div className='flex flex-col lg:flex-row bg-card border border-border rounded-xl shadow-lg hover:border-2 hover:border-primary hover:scale-105 transition-all overflow-hidden group'>
-            <img className='w-full lg:w-72 h-48 lg:h-64 object-cover object-top' src={checkup} alt='General Checkup' />
-            <div className='flex flex-col justify-center gap-4 p-4'>
-              <p className='text-md font-bold text-primary-dark'>General Checkup</p>
-              <p className='w-full lg:w-xs text-sm text-gray-500'>A comprehensive wellness exam to monitor your overall health and provide preventive medical screening.</p>
+          {SERVICES.map(({ img, title, desc }) => (
+            <div key={title} className='flex flex-col lg:flex-row bg-card border border-border rounded-xl shadow-lg hover:border-2 hover:border-primary hover:scale-105 transition-all overflow-hidden'>
+              <img className='w-full lg:w-72 h-48 lg:h-64 object-cover object-top' src={img} alt={title} />
+              <div className='flex flex-col justify-center gap-4 p-4'>
+                <p className='text-md font-bold text-primary-dark'>{title}</p>
+                <p className='w-full lg:w-xs text-sm text-gray-500'>{desc}</p>
+              </div>
             </div>
-          </div>
-          <div className='flex flex-col lg:flex-row bg-card border border-border rounded-xl shadow-lg hover:border-2 hover:border-primary hover:scale-105 transition-all overflow-hidden group'>
-            <img className='w-full lg:w-72 h-48 lg:h-64 object-cover object-top' src={followup} alt='Follow-Up' />
-            <div className='flex flex-col justify-center gap-4 p-4'>
-              <p className='text-md font-bold text-primary-dark'>Follow-Up</p>
-              <p className='w-full lg:w-xs text-sm text-gray-500'>A dedicated session to review previous test results, monitor progress, or adjust your ongoing treatment plan.</p>
-            </div>
-          </div>
-          <div className='flex flex-col lg:flex-row bg-card border border-border rounded-xl shadow-lg hover:border-2 hover:border-primary hover:scale-105 transition-all overflow-hidden group'>
-            <img className='w-full lg:w-72 h-48 lg:h-64 object-cover object-top' src={patient} alt='New Patient' />
-            <div className='flex flex-col justify-center gap-4 p-4'>
-              <p className='text-md font-bold text-primary-dark'>New Patient</p>
-              <p className='w-full lg:w-xs text-sm text-gray-500'>An extended initial visit to establish your medical history and perform a baseline health assessment.</p>
-            </div>
-          </div>
-          <div className='flex flex-col lg:flex-row bg-card border border-border rounded-xl shadow-lg hover:border-2 hover:border-primary hover:scale-105 transition-all overflow-hidden group'>
-            <img className='w-full lg:w-72 h-48 lg:h-64 object-cover object-top' src={specialist} alt='Specialist Visit' />
-            <div className='flex flex-col justify-center gap-4 p-4'>
-              <p className='text-md font-bold text-primary-dark'>Specialist Visit</p>
-              <p className='w-full lg:w-xs text-sm text-gray-500'>Expert consultation focused on specific medical concerns requiring targeted diagnostic insights and care.</p>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 
       {/* DOCTORS */}
-      <div className='flex flex-col items-center gap-8 lg:gap-12 px-6 lg:px-24 py-10 lg:py-12'>
+      <div className='flex flex-col items-center gap-8 px-6 lg:px-24 py-10 lg:py-12'>
         <p className='text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12'>Meet the Doctors</p>
-        <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4'>
-          {doctors.slice(0, 4).map(doc => (
-            <DoctorCard
-              key={doc._id}
-              id={doc._id}
-              name={doc.name}
-              photoUrl={doc.photoUrl}
-              department={doc.department}
-            />
-          ))}
-        </div>
-        <button className='bg-primary/5 px-8 py-4 rounded-full cursor-pointer hover:font-bold hover:text-primary active:scale-95 transition-all' onClick={() => navigate('/doctors')}>View All</button>
+        {loadingDoctors ? (
+          <LoadingSpinner message='Loading doctors...' />
+        ) : error ? (
+          <p className='text-error text-sm'>{error}</p>
+        ) : (
+          <>
+            <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4'>
+              {doctors.slice(0, 4).map(doc => (
+                <DoctorCard
+                  key={doc._id}
+                  id={doc._id}
+                  name={doc.name}
+                  photoUrl={doc.photoUrl}
+                  department={doc.department}
+                />
+              ))}
+            </div>
+            <button className='bg-primary/5 px-8 py-4 rounded-full cursor-pointer hover:font-bold hover:text-primary active:scale-95 transition-all' onClick={() => navigate('/doctors')}>View All</button>
+          </>
+        )}
       </div>
 
       {/* WHY CHOOSE US */}
-      <div className='px-6 lg:px-24 py-10 lg:py-12 bg-white'>
+      <div className='px-6 lg:px-24 py-10 lg:py-16 bg-white'>
         <p className='text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12'>Why Choose Us</p>
-        <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 min-h-64'>
-          <div className='flex flex-col gap-4 bg-card p-4 border border-border hover:border-2 hover:border-primary hover:scale-105 transition-all rounded-xl shadow-lg group'>
-            <img className='w-12 h-12 p-2 rounded-lg bg-primary/20' src={experts} alt='General Checkup' />
-            <p className='text-md font-bold'>Expert Medical Team</p>
-            <p className='text-sm text-gray-500'>Access a network of board-certified physicians and experienced healthcare professionals dedicated to providing personalized, high-quality medical care for every patient.</p>
-          </div>
-          <div className='flex flex-col gap-4 bg-card p-4 border border-border hover:border-2 hover:border-primary hover:scale-105 transition-all rounded-xl shadow-lg group'>
-            <img className='w-12 h-12 p-2 rounded-lg bg-primary/20' src={award} alt='Follow-Up' />
-            <p className='text-md font-bold'>Accredited Excellence</p>
-            <p className='text-sm text-gray-500'>We maintain the highest clinical standards as a Joint Commission-accredited facility, ensuring your care is safe, strictly regulated, and held to national benchmarks of excellence.</p>
-          </div>
-          <div className='flex flex-col gap-4 bg-card p-4 border border-border hover:border-2 hover:border-primary hover:scale-105 transition-all rounded-xl shadow-lg group'>
-            <img className='w-12 h-12 p-2 rounded-lg bg-primary/20' src={schedule} alt='New Patient' />
-            <p className='text-md font-bold'>Seamless Scheduling</p>
-            <p className='text-sm text-gray-500'>Skip the waiting room. Our real-time booking system allows you to secure appointment slots instantly, helping you manage your health around your busy schedule.</p>
-          </div>
-          <div className='flex flex-col gap-4 bg-card p-4 border border-border hover:border-2 hover:border-primary hover:scale-105 transition-all rounded-xl shadow-lg group'>
-            <img className='w-12 h-12 p-2 rounded-lg bg-primary/20' src={building} alt='Specialist Visit' />
-            <p className='text-md font-bold'>Modern Facilities</p>
-            <p className='text-sm text-gray-500'>Experience medical care in a clean, professional environment equipped with modern diagnostic tools and comfortable patient lounges designed for your peace of mind.</p>
-          </div>
+        <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6'>
+          {WHY_US.map(({ icon, title, desc }) => (
+            <div key={title} className='flex flex-col gap-4 bg-card p-4 border border-border hover:border-2 hover:border-primary hover:scale-105 transition-all rounded-xl shadow-lg'>
+              <img className='w-12 h-12 p-2 rounded-lg bg-primary/20' src={icon} alt={title} />
+              <p className='text-md font-bold'>{title}</p>
+              <p className='text-sm text-gray-500'>{desc}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>

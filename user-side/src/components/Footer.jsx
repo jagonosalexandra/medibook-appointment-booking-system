@@ -1,38 +1,41 @@
+// Footer.jsx
 import React from 'react'
 import logo from '../assets/images/logo.svg'
 import phone from '../assets/icons/phone.svg'
 import address from '../assets/icons/address.svg'
 import email from '../assets/icons/email.svg'
+import { Link } from 'react-router-dom'
 
 const Footer = () => {
   return (
-    <div className='bg-white px-8 py-12 text-gray-600 text-sm'>
-      <div className='flex flex-col gap-6 lg:flex-row justify-between pb-12'>
+    <footer className='bg-white px-6 lg:px-24 py-12 text-gray-600 text-sm'>
+      <div className='flex flex-col gap-10 lg:flex-row justify-between pb-12'>
 
-        <div className='md:w-1/3 space-y-4'>
+        <div className='lg:w-1/3 space-y-4'>
           <img className='w-30' src={logo} alt='MediBook Logo' />
           <p className='xl:max-w-sm leading-relaxed'>
-            Empowering patients with modern 
-            healthcare solutions. Connecting you 
-            with world-class medical expertise 
-            anytime, anywhere.</p>
+            Empowering patients with modern healthcare solutions. Connecting you
+            with world-class medical expertise anytime, anywhere.
+          </p>
         </div>
 
         <div className='flex flex-col gap-4'>
           <p className='text-black font-bold tracking-wider'>Quick Links</p>
+          {/* ✅ Using Link instead of dead <li> elements */}
           <ul className='space-y-2.5'>
-            <li className='hover:text-primary cursor-pointer transition-colors'>Find a Doctor</li>
-            <li className='hover:text-primary cursor-pointer transition-colors'>Book Appointment</li>
+            <li><Link to='/doctors' className='hover:text-primary transition-colors'>Find a Doctor</Link></li>
+            <li><Link to='/booking' className='hover:text-primary transition-colors'>Book Appointment</Link></li>
           </ul>
         </div>
 
         <div className='flex flex-col gap-4'>
           <p className='text-black font-bold tracking-wider'>Services</p>
           <ul className='space-y-2.5'>
-            <li className='hover:text-primary cursor-pointer transition-colors'>General Checkup</li>
-            <li className='hover:text-primary cursor-pointer transition-colors'>Follow-Up</li>
-            <li className='hover:text-primary cursor-pointer transition-colors'>New Patient</li>
-            <li className='hover:text-primary cursor-pointer transition-colors'>Specialist Visit</li>
+            {['General Checkup', 'Follow-Up', 'New Patient', 'Specialist Visit'].map(s => (
+              <li key={s}>
+                <Link to='/booking' className='hover:text-primary transition-colors'>{s}</Link>
+              </li>
+            ))}
           </ul>
         </div>
 
@@ -46,19 +49,18 @@ const Footer = () => {
         </div>
       </div>
 
+      <hr className='border-none h-px bg-gray-200 mb-8' />
 
-      <div className='flex flex-col justify-center gap-8'>
-        <hr className='border-none outline-none h-px bg-gray-600/50' />
-        <div className='flex flex-col md:flex-row gap-4 justify-between items-center text-xs text-gray-600/50'>
-          <p>© 2024 MediBook. All rights reserved.</p>
-          <ul className='flex justify-between items-end w-full md:w-72 cursor-pointer'>
-            <li>Privacy Policy</li>
-            <li>Terms of Service</li>
-            <li>Cookie Policy</li>
-          </ul>
-        </div>
+      <div className='flex flex-col md:flex-row gap-4 justify-between items-center text-xs text-gray-400'>
+        <p>© 2025 MediBook. All rights reserved.</p>
+        {/* ✅ Fixed: was items-end, should be items-center */}
+        <ul className='flex items-center gap-6 cursor-pointer'>
+          <li className='hover:text-primary transition-colors'>Privacy Policy</li>
+          <li className='hover:text-primary transition-colors'>Terms of Service</li>
+          <li className='hover:text-primary transition-colors'>Cookie Policy</li>
+        </ul>
       </div>
-    </div>
+    </footer>
   )
 }
 
