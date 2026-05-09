@@ -7,11 +7,11 @@ import email from '../assets/icons/email.svg'
 const Footer = () => {
   return (
     <div className='bg-white px-8 py-12 text-gray-600 text-sm'>
-      <div className='flex justify-between pb-12'>
+      <div className='flex flex-col gap-6 lg:flex-row justify-between pb-12'>
 
         <div className='md:w-1/3 space-y-4'>
           <img className='w-30' src={logo} alt='MediBook Logo' />
-          <p className='max-w-sm leading-relaxed'>
+          <p className='xl:max-w-sm leading-relaxed'>
             Empowering patients with modern 
             healthcare solutions. Connecting you 
             with world-class medical expertise 
@@ -49,9 +49,9 @@ const Footer = () => {
 
       <div className='flex flex-col justify-center gap-8'>
         <hr className='border-none outline-none h-px bg-gray-600/50' />
-        <div className='flex justify-between items-center text-xs text-gray-600/50'>
+        <div className='flex flex-col md:flex-row gap-4 justify-between items-center text-xs text-gray-600/50'>
           <p>© 2024 MediBook. All rights reserved.</p>
-          <ul className='flex justify-between items-end w-72 cursor-pointer'>
+          <ul className='flex justify-between items-end w-full md:w-72 cursor-pointer'>
             <li>Privacy Policy</li>
             <li>Terms of Service</li>
             <li>Cookie Policy</li>
