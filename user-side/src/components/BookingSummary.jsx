@@ -1,6 +1,7 @@
 import React from "react"
 import info from '../assets/icons/info.svg'
 import user from '../assets/icons/user.svg'
+import clock from '../assets/icons/clock.svg'
 import department from '../assets/icons/department.svg'
 
 const BookingSummary = ({ selectedDoctor, formData, formatDisplayDate }) => (
