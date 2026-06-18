@@ -17,7 +17,7 @@ export const validateForm = (data) => {
         errors.phone = "Please enter a valid phone number.";
     }
 
-    if (!data.appointment_type) {
+    if (!data.appointmentType) {
         errors.appointment_type = "Please select an appointment type.";
     }
 

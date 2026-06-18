@@ -11,9 +11,9 @@ export const createAppointment = async (formData) => {
       department: formData.department,
       date: formData.date,
       time: formData.time,
-      appointmentType: formData.appointment_type,
+      appointmentType: formData.appointmentType,
       fee: formData.fee,
-      reasonForVisit: formData.visit_reason || '',
+      reasonForVisit: formData.reasonForVisit || '',
     }
 
     const response = await api.post('/api/appointments/create-appointment', payload)

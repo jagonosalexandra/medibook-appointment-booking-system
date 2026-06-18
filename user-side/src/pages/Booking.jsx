@@ -1,37 +1,56 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import StepIndicator from '../components/StepIndicator'
-import Button from '../components/Button'
+import { Label, Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react'
+import { DayPicker, getDefaultClassNames } from 'react-day-picker'
+import 'react-day-picker/dist/style.css'
+
+// components 
 import LoadingSpinner from '../components/LoadingSpinner'
+import DoctorCard from '../components/DoctorCard'
+import StepIndicator from '../components/StepIndicator'
+import StepNav from '../components/StepNav'
+import Button from '../components/Button'
+import TimeSlotButton from '../components/TimeSlotButton'
+import InputField from '../components/InputField'
+import BookingSummary from '../components/BookingSummary'
+import Confirmation from './Confirmation'
+
+// assets
 import check from '../assets/icons/check.svg'
 import clock from '../assets/icons/clock.svg'
 import down_arrow from '../assets/icons/down_arrow.svg'
-import DoctorCard from '../components/DoctorCard'
-import { DayPicker, getDefaultClassNames } from 'react-day-picker'
-import 'react-day-picker/dist/style.css'
-import InputField from '../components/InputField'
-import TimeSlotButton from '../components/TimeSlotButton'
-import BookingSummary from '../components/BookingSummary'
-import StepNav from '../components/StepNav'
+
+// constants
 import APPOINTMENT_TYPES from '../constants/appointmentTypes'
-import { Label, Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react'
-import Confirmation from './Confirmation'
 import DEPARTMENTS from '../constants/departments'
-import { validateForm } from '../utils/validators'
+
+// services
 import { createAppointment } from '../services/appointmentService'
-import { fetchSlots } from '../services/timeslotService'
 import { fetchAllDoctors, fetchDoctorById } from '../services/doctorService'
+import { fetchSlots } from '../services/timeslotService'
+
+// utils
+import { validateForm } from '../utils/validators'
 
 const defaultClassNames = getDefaultClassNames()
 const stepLabels = ['Department', 'Doctor', 'Schedule', 'Details']
+
+const parseTimeToMinutes = (timeStr) => {
+    if (!timeStr) return 0
+    const [time, period] = timeStr.split(' ')
+    let [hours, minutes] = time.split(':').map(Number)
+
+    if (period === "PM" && hours !== 12) hours += 12
+    if (period === "AM" && hours === 12) hours = 0
+    return hours * 60 + minutes
+}
 
 const Booking = () => {
     const navigate = useNavigate()
     const [searchParams] = useSearchParams()
     const preselectedDoctorId = searchParams.get('doctor')
 
-    const [step, setStep] = useState(preselectedDoctorId ? 0 : 1)
-    const [formData, setFormData] = useState({
+    const initialFormData = {
         department: '',
         docId: '',
         doctor: '',
@@ -40,26 +59,32 @@ const Booking = () => {
         name: '',
         phone: '',
         email: '',
-        appointmentType: '',  
-        reasonForVisit: '',    
-        fee: 0
-    })
+        appointmentType: '',
+        reasonForVisit: '',
+        fee: 0,
+        referenceNumber: ''
+    }
+
+    const [formData, setFormData] = useState(initialFormData)
     const [doctors, setDoctors] = useState([])
     const [slots, setSlots] = useState([])
     const [date, setDate] = useState(new Date())
+    const [isLoading, setIsLoading] = useState(false)
     const [errors, setErrors] = useState({})
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [submitError, setSubmitError] = useState('')
+    const [step, setStep] = useState(preselectedDoctorId ? 0 : 1)
 
     const selectedDoctor = doctors.find(d => d._id === formData.docId)
 
     useEffect(() => {
         if (!preselectedDoctorId) return
-        
+
         const preFill = async () => {
             try {
                 const doc = await fetchDoctorById(preselectedDoctorId)
                 const baseFee = Number(doc.fee) || 0
+                setDoctors([doc])
                 setFormData(prev => ({
                     ...prev,
                     department: doc.department,
@@ -77,7 +102,9 @@ const Booking = () => {
     }, [preselectedDoctorId])
 
     useEffect(() => {
+        if (preselectedDoctorId) return
         const getDoctors = async () => {
+            setIsLoading(true)
             try {
                 const data = await fetchAllDoctors()
                 setDoctors(
@@ -87,25 +114,44 @@ const Booking = () => {
                 )
             } catch (error) {
                 console.error(error)
+            } finally {
+                setIsLoading(false)
             }
         }
         getDoctors()
-    }, [formData.department])
+    }, [formData.department, preselectedDoctorId])
 
     useEffect(() => {
         const getSlots = async () => {
             if (formData.docId && formData.date) {
+                setIsLoading(true)
                 try {
                     const data = await fetchSlots(formData.docId, formData.date)
-                    setSlots(data)
+                    const sorted = [...data].sort(
+                        (a, b) => parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time)
+                    )
+                    setSlots(sorted)
                 } catch (error) {
                     console.error('Failed to fetch slots:', error)
                     setSlots([])
+                } finally {
+                    setIsLoading(false)
                 }
             }
         }
         getSlots()
     }, [formData.docId, formData.date])
+
+    const handleBookAnother = () => {
+        setFormData(initialFormData)
+        setDoctors([])
+        setSlots([])
+        setDate(new Date())
+        setErrors({})
+        setSubmitError('')
+        setStep(1)
+        navigate('/booking', { replace: true })
+    }
 
     const handleCancel = () => navigate(-1)
 
@@ -187,7 +233,7 @@ const Booking = () => {
 
     if (step === 0) return <LoadingSpinner message='Preparing your booking...' />
 
-    if (step === 5) return <Confirmation formData={formData} />
+    if (step === 5) return <Confirmation formData={formData} onBookAnother={handleBookAnother} />
 
     let stepContent
 
@@ -241,39 +287,45 @@ const Booking = () => {
                     <h1 className='text-lg text-primary font-bold'>Choose Your Doctor</h1>
                     <p className='text-sm text-gray-500'>Choose from our list of specialists</p>
 
-                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 py-8'>
-                        {doctors.map((doc) => {
-                            const isSelected = formData.docId === doc._id   
-                            const baseFee = Number(doc.fee) || 0
-                            return (
-                                <div
-                                    key={doc._id}
-                                    onClick={() => setFormData(prev => ({
-                                        ...prev,
-                                        docId: doc._id,
-                                        doctor: doc.name,
-                                        fee: baseFee + 5
-                                    }))}
-                                    className='relative cursor-pointer'
-                                >
-                                    {isSelected && (
-                                        <div className='absolute z-10 top-4 right-4 w-7 h-7 bg-primary-dark rounded-full flex items-center justify-center shadow-md'>
-                                            <img src={check} alt='selected' className='w-4' />
-                                        </div>
-                                    )}
-                                    <DoctorCard
-                                        name={doc.name}
-                                        photoUrl={doc.photoUrl}
-                                        department={doc.department}
-                                        experience={doc.experience}
-                                        fee={doc.fee}
-                                        isBookingMode={true}
-                                        isSelected={isSelected}
-                                    />
-                                </div>
-                            )
-                        })}
-                    </div>
+                    {isLoading ? (
+                        <div className='py-16'>
+                            <LoadingSpinner message='Loading doctors...' />
+                        </div>
+                    ) : (
+                        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 py-8'>
+                            {doctors.map((doc) => {
+                                const isSelected = formData.docId === doc._id
+                                const baseFee = Number(doc.fee) || 0
+                                return (
+                                    <div
+                                        key={doc._id}
+                                        onClick={() => setFormData(prev => ({
+                                            ...prev,
+                                            docId: doc._id,
+                                            doctor: doc.name,
+                                            fee: baseFee + 5
+                                        }))}
+                                        className='relative cursor-pointer'
+                                    >
+                                        {isSelected && (
+                                            <div className='absolute z-10 top-4 right-4 w-7 h-7 bg-primary-dark rounded-full flex items-center justify-center shadow-md'>
+                                                <img src={check} alt='selected' className='w-4' />
+                                            </div>
+                                        )}
+                                        <DoctorCard
+                                            name={doc.name}
+                                            photoUrl={doc.photoUrl}
+                                            department={doc.department}
+                                            experience={doc.experience}
+                                            fee={doc.fee}
+                                            isBookingMode={true}
+                                            isSelected={isSelected}
+                                        />
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    )}
 
                     <StepNav onBack={prevStep} onNext={nextStep} nextDisabled={!formData.docId} />
                 </div>
@@ -313,11 +365,15 @@ const Booking = () => {
                                 <span className='flex items-center gap-1.5 text-primary-dark font-semibold'>
                                     <img className='w-5' src={clock} alt='' />Available Time Slots
                                 </span>
-                                <div className='grid grid-cols-2 sm:grid-cols-4 gap-4'>
-                                    {slots.length > 0 ? (
-                                        [...slots]
-                                            .sort((a, b) => new Date(`1970/01/01 ${a.time}`) - new Date(`1970/01/01 ${b.time}`))
-                                            .map((slot) => (
+
+                                {isLoading ? (
+                                    <div className='py-8'>
+                                        <LoadingSpinner message='Loading available slots...' />
+                                    </div>
+                                ) : (
+                                    <div className='grid grid-cols-2 sm:grid-cols-4 gap-4'>
+                                        {slots.length > 0 ? (
+                                            slots.map((slot) => (
                                                 <TimeSlotButton
                                                     key={slot._id}
                                                     slot={slot}
@@ -325,12 +381,13 @@ const Booking = () => {
                                                     onClick={(selectedTime) => handleChange('time')(selectedTime)}
                                                 />
                                             ))
-                                    ) : (
-                                        <p className='col-span-4 text-gray-400 italic text-center py-4'>
-                                            No slots available for this date.
-                                        </p>
-                                    )}
-                                </div>
+                                        ) : (
+                                            <p className='col-span-4 text-gray-400 italic text-center py-4'>
+                                                No slots available for this date.
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
 
