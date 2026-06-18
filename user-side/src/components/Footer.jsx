@@ -5,6 +5,7 @@ import phone from '../assets/icons/phone.svg'
 import address from '../assets/icons/address.svg'
 import email from '../assets/icons/email.svg'
 import { Link } from 'react-router-dom'
+import SERVICES from '../constants/services'
 
 const Footer = () => {
   return (
@@ -21,7 +22,6 @@ const Footer = () => {
 
         <div className='flex flex-col gap-4'>
           <p className='text-black font-bold tracking-wider'>Quick Links</p>
-          {/* ✅ Using Link instead of dead <li> elements */}
           <ul className='space-y-2.5'>
             <li><Link to='/doctors' className='hover:text-primary transition-colors'>Find a Doctor</Link></li>
             <li><Link to='/booking' className='hover:text-primary transition-colors'>Book Appointment</Link></li>
@@ -31,9 +31,9 @@ const Footer = () => {
         <div className='flex flex-col gap-4'>
           <p className='text-black font-bold tracking-wider'>Services</p>
           <ul className='space-y-2.5'>
-            {['General Checkup', 'Follow-Up', 'New Patient', 'Specialist Visit'].map(s => (
-              <li key={s}>
-                <Link to='/booking' className='hover:text-primary transition-colors'>{s}</Link>
+            {SERVICES.map(({ title }) => (
+              <li key={title}>
+                <Link to='/booking' className='hover:text-primary transition-colors'>{title}</Link>
               </li>
             ))}
           </ul>
@@ -53,7 +53,6 @@ const Footer = () => {
 
       <div className='flex flex-col md:flex-row gap-4 justify-between items-center text-xs text-gray-400'>
         <p>© 2025 MediBook. All rights reserved.</p>
-        {/* ✅ Fixed: was items-end, should be items-center */}
         <ul className='flex items-center gap-6 cursor-pointer'>
           <li className='hover:text-primary transition-colors'>Privacy Policy</li>
           <li className='hover:text-primary transition-colors'>Terms of Service</li>
