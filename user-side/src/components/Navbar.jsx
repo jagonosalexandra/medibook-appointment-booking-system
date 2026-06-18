@@ -53,7 +53,7 @@ const Navbar = () => {
       </div>
 
       {isOpen && (
-        <div className='md:hidden bg-white border-t border-gray-100 px-6 flex flex-col gap-1'>
+        <div className='md:hidden bg-white border-t border-gray-100 px-6 py-4 flex flex-col gap-1'>
           {NAV_LINKS.map(({ label, to }) => (
             <NavLink
               key={to}
