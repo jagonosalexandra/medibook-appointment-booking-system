@@ -1,6 +1,6 @@
 import React from 'react'
 
-const InputField = ({ label, type, value, onChange, error, placeholder, required = false }) => {
+const InputField = ({ label, type, value, onChange, error, placeholder, required = false, name }) => {
   const inputId = label.toLowerCase().replace(/\s+/g, '-') 
   const errorId = `${inputId}-error`
 
@@ -11,6 +11,7 @@ const InputField = ({ label, type, value, onChange, error, placeholder, required
       </label>
       <input
         id={inputId}
+        name={name}
         aria-describedby={error ? errorId : undefined}
         aria-invalid={!!error}
         className={`border rounded-lg px-1.5 py-2.5 focus:outline-2 
